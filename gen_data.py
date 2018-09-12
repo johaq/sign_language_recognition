@@ -134,28 +134,17 @@ class DataGen:
     def create_batch(self, batch_size):
         index_list = random.sample(range(len(self.encoder_input)), batch_size)
 
-        # Pad input for Batch computation
-        e_input_padded = K.preprocessing.sequence.pad_sequences(self.encoder_input, maxlen=None, dtype='float64',
-                                                                padding='pre',
-                                                                truncating='pre', value=0.0)
-        d_input_padded = K.preprocessing.sequence.pad_sequences(self.decoder_input, maxlen=None, dtype='float64',
-                                                                padding='pre',
-                                                                truncating='pre', value=0.0)
-        d_output_padded = K.preprocessing.sequence.pad_sequences(self.decoder_output, maxlen=None, dtype='float64',
-                                                                padding='pre',
-                                                                truncating='pre', value=0.0)
-
-        batch_data_en = [e_input_padded[i] for i in index_list]
+        batch_data_en = [self.e_input_padded[i] for i in index_list]
         batch_data_en_arr = np.expand_dims(batch_data_en[0], 0)
         for d in range(1, len(batch_data_en)):
             batch_data_en_arr = np.concatenate((batch_data_en_arr, np.expand_dims(batch_data_en[d], 0)))
 
-        batch_de_in = [d_input_padded[i] for i in index_list]
+        batch_de_in = [self.d_input_padded[i] for i in index_list]
         batch_de_in_arr = np.expand_dims(batch_de_in[0], 0)
         for l in range(1,len(batch_de_in)):
             batch_de_in_arr = np.concatenate((batch_de_in_arr, np.expand_dims(batch_de_in[l], 0)))
 
-        batch_de_out = [d_output_padded[i] for i in index_list]
+        batch_de_out = [self.d_output_padded[i] for i in index_list]
         batch_de_out_arr = np.expand_dims(batch_de_out[0], 0)
         for l in range(1, len(batch_de_out)):
             batch_de_out_arr = np.concatenate((batch_de_out_arr, np.expand_dims(batch_de_out[l], 0)))
@@ -170,6 +159,17 @@ class DataGen:
         self.encoder_input = np.load(path + '/' + '' + filename + '_' + 'e_input.npy')
         self.decoder_input = np.load(path + '/' + '' + filename + '_' + 'd_input.npy')
         self.decoder_output = np.load(path + '/' + '' + filename + '_' + 'd_output.npy')
+        # Pad input for Batch computation
+        self.e_input_padded = K.preprocessing.sequence.pad_sequences(self.encoder_input, maxlen=None, dtype='float32',
+                                                                padding='pre',
+                                                                truncating='pre', value=0.0)
+        self.d_input_padded = K.preprocessing.sequence.pad_sequences(self.decoder_input, maxlen=None, dtype='float32',
+                                                                padding='pre',
+                                                                truncating='pre', value=0.0)
+        self.d_output_padded = K.preprocessing.sequence.pad_sequences(self.decoder_output, maxlen=None, dtype='float32',
+                                                                padding='pre',
+                                                                truncating='pre', value=0.0)
+
 
 
 #g_data = read_json("/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/01April_2010_Thursday_heute_default-0/openpose/01April_2010_Thursday_heute.avi_fn044294-0_keypoints.json")

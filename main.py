@@ -48,13 +48,8 @@ def train(model_path, data_location, data_name, batch_size, num_epochs, save_int
 
 #test_data_generation()
 #create_and_save_data('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus')
-train(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
+train(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]))
 
-recording_locations = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images'
-model_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models'
-corpus_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus'
-data_location = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array'
-data_name = 'rwth_corpus'
-batch_size = 50
-num_epochs = 1000
-save_interval = 100
+#recording_locations = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images'
+#model_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models'
+#corpus_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus'
