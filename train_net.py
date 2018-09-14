@@ -7,7 +7,7 @@ import numpy as np
 class NetTrain:
     def __init__(self, model_path, data_location, data_name):
         self.net_generator = gen_net.NetGen()
-        self.model, self.model_name = self.net_generator.get_std_net()
+        self.model, self.model_name, self.encoder_model, self.decoder_model = self.net_generator.get_std_net()
         self.data_generator = gen_data.DataGen(data_path="", corpus_path="")
         self.data_generator.load_from_file(data_location, data_name)
         self.path = model_path
@@ -42,6 +42,7 @@ class NetTrain:
                            verbose=1)
 
         self.model.save(self.path + self.model_name)
+        self.predict_sequence(encoder_input_data[0])
         return self.model
 
     def reduce_modelname(self,
@@ -50,3 +51,23 @@ class NetTrain:
             name = '.'.join(name.split('.')[:-1])
             name = name.split('/')[-1]
         return name
+
+    # generate target given source sequence
+    def predict_sequence(self, source, n_steps = 299, cardinality = 118):
+        # encode
+        state = self.encoder_model.predict(source)
+        # start of sequence input
+        target_seq = np.array([0.0 for _ in range(cardinality)]).reshape(1, 1, cardinality)
+        # collect predictions
+        output = list()
+        for t in range(n_steps):
+            # predict next char
+            yhat, h, c = self.decoder_model.predict([target_seq] + state)
+            # store prediction
+            output.append(yhat[0, 0, :])
+            # update state
+            state = [h, c]
+            # update target sequence
+            target_seq = yhat
+        print(np.array(output))
+        return np.array(output)

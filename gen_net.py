@@ -26,8 +26,17 @@ class NetGen:
         model = K.models.Model([encoder_input, decoder_input], decoder_output)
         model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
 
+        encoder_model = K.models.Model(encoder_input, encoder_states)
+        decoder_state_input_h = K.layers.Input(shape=(1024,))
+        decoder_state_input_c = K.layers.Input(shape=(1024,))
+        decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
+        decoder_output, state_h, state_c = decoder_lstm(decoder_input, initial_state=decoder_states_inputs)
+        decoder_states = [state_h, state_c]
+        decoder_outputs = decoder_dense(decoder_output)
+        decoder_model = K.models.Model([decoder_input] + decoder_states_inputs, [decoder_outputs] + decoder_states)
+
         name = self.generate_netname()
-        return model, name
+        return model, name, encoder_model, decoder_model
 
     def generate_netname(self):
         name = ('net_' + str(datetime.datetime.now())).replace(' ', '_')
