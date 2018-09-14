@@ -169,6 +169,10 @@ class DataGen:
         self.d_output_padded = K.preprocessing.sequence.pad_sequences(self.decoder_output, maxlen=None, dtype='float32',
                                                                 padding='pre',
                                                                 truncating='pre', value=0.0)
+        print(self.e_input_padded.shape)
+        print(self.d_input_padded.shape)
+        print(self.d_output_padded.shape)
+
 
 
 

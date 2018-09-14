@@ -28,7 +28,12 @@ class NetTrain:
                                                  verbose=1)
 
         for epoch in range(initial, end):
-            encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.create_batch(batch_size=batch_size)
+
+            encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_random_sample()
+            encoder_input_data = np.expand_dims(encoder_input_data, 0)
+            decoder_input_data = np.expand_dims(decoder_input_data, 0)
+            decoder_target_data = np.expand_dims(decoder_target_data, 0)
+            #encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.create_batch(batch_size=batch_size)
 
             callbacks = [best_model]
             if not epoch % save_interval:
