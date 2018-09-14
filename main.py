@@ -62,8 +62,8 @@ def evaluate(model_path):
 
 #test_data_generation()
 #create_and_save_data('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus')
-#train(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]))
+train(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]))
 #evaluate('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models/net_2018-09-14_13:21:30.469090.epoch0001')
-recording_locations = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images'
+#recording_locations = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images'
 #model_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models'
 #corpus_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus'
