@@ -10,6 +10,7 @@ class NetTrain:
         self.model, self.model_name, self.encoder_model, self.decoder_model = self.net_generator.get_std_net(latent_dim)
         self.data_generator = gen_data.DataGen(data_path="", corpus_path="")
         self.data_generator.load_from_file(data_location, data_name)
+        self.data_generator.split_testset(0.1)
         self.path = model_path
 
     def train_model(self,
@@ -44,7 +45,7 @@ class NetTrain:
                            callbacks=callbacks,
                            epochs=epoch+1,
                            initial_epoch=epoch,
-                           verbose=1)
+                           verbose=0)
 
         self.model.save(self.path + self.model_name)
         return self.model

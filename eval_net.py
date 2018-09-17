@@ -6,8 +6,9 @@ import numpy as np
 
 class NetEval:
 
-    def __init__(self, model_path, dict):
-        model = K.models.load_model(model_path)
+    def __init__(self, model, dict, load_model, latent_dim):
+        if load_model:
+            model = K.models.load_model(model)
         self.dict = dict
 
         encoder_inputs = model.input[0]
@@ -16,8 +17,8 @@ class NetEval:
         self.encoder_model = K.models.Model(encoder_inputs, encoder_states)
 
         decoder_inputs = model.input[1]
-        decoder_state_input_h = K.layers.Input(shape=(1024,), name='input3')
-        decoder_state_input_c = K.layers.Input(shape=(1024,), name='input4')
+        decoder_state_input_h = K.layers.Input(shape=(latent_dim,), name='input3')
+        decoder_state_input_c = K.layers.Input(shape=(latent_dim,), name='input4')
         decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
         decoder_lstm = model.layers[3]
         decoder_outputs, state_h_dec, state_c_dec = decoder_lstm(
@@ -49,20 +50,28 @@ class NetEval:
         print("\n Prediction:")
         for i in range(np.array(output).shape[0]):
             decoded_word = self.decode(np.array(output)[i])
-            print(chr(decoded_word),end='')
+            for x in self.dict:
+                if self.dict[x] == decoded_word:
+                    print(x, end=' ')
         return np.array(output)
 
-    def decode(self, w):
-        return self.dict[w]
+    def decode(self, datum):
+        return np.argmax(datum)
 
-    def test(self, encoder_input_test, decoder_input_test, decoder_output_test):
+    def test(self, encoder_input_test, decoder_output_test):
         acc_total = 0
         for i in range(len(encoder_input_test)):
-            predicition = self.predict_sequence(encoder_input_test[i], n_steps=decoder_output_test[i].shape[1])
+            print("\n Target:")
+            for j in range(decoder_output_test[i].shape[0]):
+                decoded_word = self.decode(decoder_output_test[i][j])
+                for x in self.dict:
+                    if self.dict[x] == decoded_word:
+                        print(x, end=' ')
+            prediction = self.predict_sequence(np.expand_dims(encoder_input_test[i], 0), n_steps=decoder_output_test[i].shape[0])
             acc = 0
-            for j in predicition:
-                if predicition[j] == decoder_output_test[j]:
+            for j in range(len(prediction)):
+                if self.decode(prediction[j]) == self.decode(decoder_output_test[j]):
                     acc += 1
-            acc = acc / len(predicition)
+            acc = acc / len(prediction)
             acc_total += acc
         return acc_total / len(encoder_input_test)

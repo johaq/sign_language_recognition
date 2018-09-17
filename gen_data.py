@@ -215,9 +215,9 @@ class DataGen:
         self.decoder_input_test = [self.decoder_input[i] for i in index_list]
         self.decoder_output_test = [self.decoder_output[i] for i in index_list]
         for i in sorted(index_list, reverse=True):
-            del self.encoder_input[i]
-            del self.decoder_input[i]
-            del self.decoder_output[i]
+            self.encoder_input = np.delete(self.encoder_input, i)
+            self.decoder_input = np.delete(self.decoder_input, i)
+            self.decoder_output = np.delete(self.decoder_output, i)
 
     def get_test_set(self):
         return self.encoder_input_test, self.decoder_input_test, self.decoder_output_test

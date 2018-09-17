@@ -49,28 +49,21 @@ def create_and_save_data(path, filename):
 def train(model_path, data_location, data_name, batch_size, num_epochs, save_interval, latent_dim):
     net_trainer = train_net.NetTrain(model_path, data_location, data_name, latent_dim)
     model_trained = net_trainer.train_model(batch_size=batch_size, end=num_epochs, save_interval=save_interval)
+    return net_trainer, model_trained
 
 
-def evaluate(model_path):
-    data_generator = gen_data.DataGen(data_path="", corpus_path="")
-    data_generator.load_from_file('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array/', "rwth_corpus")
-
-    for i in range(10):
-        encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
-        encoder_input_data = np.expand_dims(encoder_input_data, 0)
-        decoder_input_data = np.expand_dims(decoder_input_data, 0)
-        decoder_target_data = np.expand_dims(decoder_target_data, 0)
-        print("\n Target")
-        for i in range(decoder_target_data.shape[1]):
-            print(chr(np.argmax(decoder_target_data[0][i])), end='')
-        net_eval = eval_net.NetEval(model_path)
-        net_eval.predict_sequence(encoder_input_data, n_steps=decoder_target_data.shape[1])
+def evaluate(model, dict, latent_dim, encoder_input_data, decoder_output_data, load_model=True,):
+    net_eval = eval_net.NetEval(model, dict, load_model, latent_dim)
+    return net_eval.test(encoder_input_data, decoder_output_data)
 
 
 #test_data_generation()
 #create_and_save_data('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus_word')
-train(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]), int(sys.argv[7]))
-#evaluate('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models/net_2018-09-14_16_no_padding')
-#recording_locations = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images'
-#model_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models'
-#corpus_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus'
+print('########### START TRAINING ###########')
+trainer, model = train(model_path=sys.argv[1], data_location=sys.argv[2], data_name=sys.argv[3],
+                       batch_size=int(sys.argv[4]), num_epochs=int(sys.argv[5]),
+                       save_interval=int(sys.argv[6]), latent_dim=int(sys.argv[7]))
+print('########### EVALUATE MODEL ###########')
+acc = evaluate(model,trainer.data_generator.dict, int(sys.argv[7]),
+         trainer.data_generator.encoder_input_test, trainer.data_generator.decoder_output_test, load_model=False)
+print('########### MODEL ACCURACY: %d ###########' % acc)
