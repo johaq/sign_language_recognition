@@ -5,9 +5,9 @@ import numpy as np
 
 
 class NetTrain:
-    def __init__(self, model_path, data_location, data_name):
+    def __init__(self, model_path, data_location, data_name, latent_dim=1024):
         self.net_generator = gen_net.NetGen()
-        self.model, self.model_name, self.encoder_model, self.decoder_model = self.net_generator.get_std_net()
+        self.model, self.model_name, self.encoder_model, self.decoder_model = self.net_generator.get_std_net(latent_dim)
         self.data_generator = gen_data.DataGen(data_path="", corpus_path="")
         self.data_generator.load_from_file(data_location, data_name)
         self.path = model_path

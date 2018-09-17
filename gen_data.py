@@ -219,6 +219,9 @@ class DataGen:
             del self.decoder_input[i]
             del self.decoder_output[i]
 
+    def get_test_set(self):
+        return self.encoder_input_test, self.decoder_input_test, self.decoder_output_test
+
 #g_data = read_json("/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/01April_2010_Thursday_heute_default-0/openpose/01April_2010_Thursday_heute.avi_fn044294-0_keypoints.json")
 #g_feature = json_to_train_data(g_data)
 #print("Extracted Feature")

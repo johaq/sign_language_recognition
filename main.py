@@ -46,8 +46,8 @@ def create_and_save_data(path, filename):
         d_output)
 
 
-def train(model_path, data_location, data_name, batch_size, num_epochs, save_interval):
-    net_trainer = train_net.NetTrain(model_path, data_location, data_name)
+def train(model_path, data_location, data_name, batch_size, num_epochs, save_interval, latent_dim):
+    net_trainer = train_net.NetTrain(model_path, data_location, data_name, latent_dim)
     model_trained = net_trainer.train_model(batch_size=batch_size, end=num_epochs, save_interval=save_interval)
 
 
@@ -69,7 +69,7 @@ def evaluate(model_path):
 
 #test_data_generation()
 #create_and_save_data('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus_word')
-train(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]))
+train(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]), int(sys.argv[7]))
 #evaluate('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models/net_2018-09-14_16_no_padding')
 #recording_locations = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images'
 #model_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models'
