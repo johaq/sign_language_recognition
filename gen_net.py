@@ -27,8 +27,8 @@ class NetGen:
         model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
 
         encoder_model = K.models.Model(encoder_input, encoder_states)
-        decoder_state_input_h = K.layers.Input(shape=(1024,))
-        decoder_state_input_c = K.layers.Input(shape=(1024,))
+        decoder_state_input_h = K.layers.Input(shape=(latent_dim,))
+        decoder_state_input_c = K.layers.Input(shape=(latent_dim,))
         decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
         decoder_output, state_h, state_c = decoder_lstm(decoder_input, initial_state=decoder_states_inputs)
         decoder_states = [state_h, state_c]
