@@ -30,6 +30,7 @@ def create_and_save_data(path, filename):
     data_generator = gen_data.DataGen(
         data_path='/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images',
         corpus_path='/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus')
+    data_generator.create_dictionary()
     e_input, d_input, d_output = data_generator.read_path()
     np.save(
         path + '/' + '' + filename + '_' + 'e_input.npy',
@@ -51,19 +52,22 @@ def evaluate(model_path):
     data_generator = gen_data.DataGen(data_path="", corpus_path="")
     data_generator.load_from_file('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array/', "rwth_corpus")
 
-    encoder_input_data, decoder_input_data, decoder_target_data = data_generator.create_batch(1)
-    print(decoder_target_data.shape)
-    print(decoder_target_data)
-    for i in range(decoder_target_data.shape[1]):
-        print(chr(np.argmax(decoder_target_data[0][i])))
-    net_eval = eval_net.NetEval(model_path)
-    net_eval.predict_sequence(encoder_input_data)
+    for i in range(10):
+        encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
+        encoder_input_data = np.expand_dims(encoder_input_data, 0)
+        decoder_input_data = np.expand_dims(decoder_input_data, 0)
+        decoder_target_data = np.expand_dims(decoder_target_data, 0)
+        print("\n Target")
+        for i in range(decoder_target_data.shape[1]):
+            print(chr(np.argmax(decoder_target_data[0][i])), end='')
+        net_eval = eval_net.NetEval(model_path)
+        net_eval.predict_sequence(encoder_input_data, n_steps=decoder_target_data.shape[1])
 
 
 #test_data_generation()
-#create_and_save_data('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus')
+#create_and_save_data('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus_word')
 train(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]))
-#evaluate('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models/net_2018-09-14_13:21:30.469090.epoch0001')
+#evaluate('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models/net_2018-09-14_16_no_padding')
 #recording_locations = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images'
 #model_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/models'
 #corpus_path = '/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus'

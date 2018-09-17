@@ -29,7 +29,7 @@ class NetEval:
             [decoder_outputs] + decoder_states)
 
     # generate target given source sequence
-    def predict_sequence(self, source, n_steps=168, cardinality=118):
+    def predict_sequence(self, source, n_steps=168, cardinality=1220):
         # encode
         state = self.encoder_model.predict(source)
         # start of sequence input
@@ -45,11 +45,10 @@ class NetEval:
             state = [h, c]
             # update target sequence
             target_seq = yhat
-        print(np.array(output).shape)
-        print(np.array(output))
+        print("\n Prediction:")
         for i in range(np.array(output).shape[0]):
             decoded_char = self.decode(np.array(output)[i])
-            print(chr(decoded_char))
+            print(chr(decoded_char),end='')
         return np.array(output)
 
     def decode(self, char):

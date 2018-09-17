@@ -15,6 +15,7 @@ class DataGen:
         self.decoder_input = []
         self.decoder_output = []
         self.corpus_path = corpus_path
+        self.dict = {}
 
     def normalize(v):
         norm = np.linalg.norm(v)
@@ -91,7 +92,7 @@ class DataGen:
         # feature_tensor normalized
         return feature_tensor
 
-    def read_label(self, name):
+    def read_label_char(self, name):
         tree = ET.parse(self.corpus_path)
         root = tree.getroot()
         for recording in root.findall('recording'):
@@ -108,6 +109,22 @@ class DataGen:
                 # offset label by one timestep for prediction
                 return one_hot_encoded_input, one_hot_encoded_output
 
+    def read_label(self, name):
+        tree = ET.parse(self.corpus_path)
+        root = tree.getroot()
+        for recording in root.findall('recording'):
+            if recording.get('name') == name:
+                seg = recording.find('segment')
+                orth = seg.find('orth').text
+                orth = orth.split()
+                # integer encoding
+                int_encoded_input = [self.dict[w] for w in [''] + orth[:-1]]
+                int_encoded_output = [self.dict[w] for w in orth]
+                # one-hot encoding
+                one_hot_encoded_input = K.utils.to_categorical(int_encoded_input, num_classes=1220)
+                one_hot_encoded_output = K.utils.to_categorical(int_encoded_output, num_classes=1220)
+                # offset label by one timestep for prediction
+                return one_hot_encoded_input, one_hot_encoded_output
 
     def read_path(self):
         recordings = os.listdir(self.data_path)
@@ -169,11 +186,23 @@ class DataGen:
         self.d_output_padded = K.preprocessing.sequence.pad_sequences(self.decoder_output, maxlen=None, dtype='float32',
                                                                 padding='pre',
                                                                 truncating='pre', value=0.0)
-        print(self.e_input_padded.shape)
-        print(self.d_input_padded.shape)
-        print(self.d_output_padded.shape)
 
-
+    def create_dictionary(self):
+        tree = ET.parse(self.corpus_path)
+        root = tree.getroot()
+        dict = {'': 0}
+        class_n = 1
+        for recording in root.findall('recording'):
+            seg = recording.find('segment')
+            orth = seg.find('orth').text
+            for w in orth.split():
+                if w in dict:
+                    pass
+                else:
+                    dict[w] = class_n
+                    class_n += 1
+        self.dict = dict
+        return dict
 
 
 #g_data = read_json("/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/01April_2010_Thursday_heute_default-0/openpose/01April_2010_Thursday_heute.avi_fn044294-0_keypoints.json")

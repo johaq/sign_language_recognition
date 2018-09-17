@@ -17,10 +17,10 @@ class NetGen:
         encoder_output, state_h, state_c = encoder(encoder_input)
         encoder_states = [state_h, state_c]
 
-        decoder_input = K.layers.Input(shape=(None, 118))
+        decoder_input = K.layers.Input(shape=(None, 1220))
         decoder_lstm = LSTM(1024, return_sequences=True, return_state=True)
         decoder_output, _, _ = decoder_lstm(decoder_input, initial_state=encoder_states)
-        decoder_dense = K.layers.Dense(118, activation='softmax')
+        decoder_dense = K.layers.Dense(1220, activation='softmax')
         decoder_output = decoder_dense(decoder_output)
 
         model = K.models.Model([encoder_input, decoder_input], decoder_output)
