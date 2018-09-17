@@ -30,7 +30,10 @@ def create_and_save_data(path, filename):
     data_generator = gen_data.DataGen(
         data_path='/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images',
         corpus_path='/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus')
-    data_generator.create_dictionary()
+    dict = data_generator.create_dictionary()
+    np.save(
+        path + '/' + '' + filename + '_' + 'dict.npy',
+        dict)
     e_input, d_input, d_output = data_generator.read_path()
     np.save(
         path + '/' + '' + filename + '_' + 'e_input.npy',

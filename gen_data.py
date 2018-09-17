@@ -14,6 +14,9 @@ class DataGen:
         self.encoder_input = []
         self.decoder_input = []
         self.decoder_output = []
+        self.encoder_input_test = []
+        self.decoder_input_test = []
+        self.decoder_output_test = []
         self.corpus_path = corpus_path
         self.dict = {}
 
@@ -176,6 +179,7 @@ class DataGen:
         self.encoder_input = np.load(path + '/' + '' + filename + '_' + 'e_input.npy')
         self.decoder_input = np.load(path + '/' + '' + filename + '_' + 'd_input.npy')
         self.decoder_output = np.load(path + '/' + '' + filename + '_' + 'd_output.npy')
+        self.dict = np.load(path + '/' + '' + filename + '_' + 'dict.npy').item()
         # Pad input for Batch computation
         self.e_input_padded = K.preprocessing.sequence.pad_sequences(self.encoder_input, maxlen=None, dtype='float32',
                                                                 padding='pre',
@@ -204,6 +208,16 @@ class DataGen:
         self.dict = dict
         return dict
 
+    def split_testset(self, test_set_size_pct):
+        print("Creating test set of size %d" % int(len(self.encoder_input) * test_set_size_pct))
+        index_list = random.sample(range(len(self.encoder_input)), int(len(self.encoder_input) * test_set_size_pct))
+        self.encoder_input_test = [self.encoder_input[i] for i in index_list]
+        self.decoder_input_test = [self.decoder_input[i] for i in index_list]
+        self.decoder_output_test = [self.decoder_output[i] for i in index_list]
+        for i in sorted(index_list, reverse=True):
+            del self.encoder_input[i]
+            del self.decoder_input[i]
+            del self.decoder_output[i]
 
 #g_data = read_json("/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/01April_2010_Thursday_heute_default-0/openpose/01April_2010_Thursday_heute.avi_fn044294-0_keypoints.json")
 #g_feature = json_to_train_data(g_data)
