@@ -70,8 +70,15 @@ class NetEval:
             prediction = self.predict_sequence(np.expand_dims(encoder_input_test[i], 0), n_steps=decoder_output_test[i].shape[0])
             acc = 0
             for j in range(len(prediction)):
+                print("decode prediction:")
+                print(self.decode(prediction[j]))
+                print("decode output:")
+                print(self.decode(decoder_output_test[j]))
                 if self.decode(prediction[j]) == self.decode(decoder_output_test[j]):
+                    print("HELLO!")
                     acc += 1
             acc = acc / len(prediction)
+            print(acc)
             acc_total += acc
+            print(acc_total)
         return acc_total / len(encoder_input_test)

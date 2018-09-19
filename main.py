@@ -59,11 +59,11 @@ def evaluate(model, dict, latent_dim, encoder_input_data, decoder_output_data, l
 
 #test_data_generation()
 #create_and_save_data('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus_word')
-print('########### START TRAINING ###########')
+print('########### START TRAINING WITH DATA_NAME:%s NUM_EPOCHS:%d LATENT_DIM:%d ###########' % (sys.argv[3], int(sys.argv[5]), int(sys.argv[7])))
 trainer, model = train(model_path=sys.argv[1], data_location=sys.argv[2], data_name=sys.argv[3],
                        batch_size=int(sys.argv[4]), num_epochs=int(sys.argv[5]),
                        save_interval=int(sys.argv[6]), latent_dim=int(sys.argv[7]))
 print('########### EVALUATE MODEL ###########')
-acc = evaluate(model,trainer.data_generator.dict, int(sys.argv[7]),
+acc = evaluate(model, trainer.data_generator.dict, int(sys.argv[7]),
          trainer.data_generator.encoder_input_test, trainer.data_generator.decoder_output_test, load_model=False)
-print('########### MODEL ACCURACY: %d ###########' % acc)
+print('\n########### MODEL ACCURACY: %f ###########' % acc)
