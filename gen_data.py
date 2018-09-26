@@ -4,6 +4,8 @@ import os
 import xml.etree.ElementTree as ET
 import random
 import keras as K
+import imageio
+
 
 
 
@@ -175,6 +177,14 @@ class DataGen:
         index = random.randint(0, len(self.encoder_input) - 1)
         return self.encoder_input[index], self.decoder_input[index], self.decoder_output[index]
 
+    def get_random_image_sample(self):
+        recordings = os.listdir(self.data_path)
+        index = random.randint(0, len(recordings) - 1)
+
+        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
+        decoder_input, decoder_output = self.read_label(recordings[index])
+        return encoder_input, decoder_input, decoder_output
+
     def load_from_file(self, path, filename):
         self.encoder_input = np.load(path + '/' + '' + filename + '_' + 'e_input.npy')
         self.decoder_input = np.load(path + '/' + '' + filename + '_' + 'd_input.npy')
@@ -190,6 +200,9 @@ class DataGen:
         self.d_output_padded = K.preprocessing.sequence.pad_sequences(self.decoder_output, maxlen=None, dtype='float32',
                                                                 padding='pre',
                                                                 truncating='pre', value=0.0)
+
+    def load_dict_from_file(self, path, filename):
+        self.dict = np.load(path + '/' + '' + filename + '_' + 'dict.npy').item()
 
     def create_dictionary(self):
         tree = ET.parse(self.corpus_path)
@@ -221,6 +234,51 @@ class DataGen:
 
     def get_test_set(self):
         return self.encoder_input_test, self.decoder_input_test, self.decoder_output_test
+
+    def read_image(self, file):
+        im = imageio.imread(file)
+        return im
+
+    def read_recording_image(self, name):
+        files = os.listdir(name + "/")
+        first = True
+        for f in files:
+            if f.endswith(".png"):
+                data = self.read_image(name + "/" + f)
+                try:
+                    if first:
+                        feature_tensor = np.expand_dims(data, 0)
+                        first = False
+                    else:
+                        data = np.expand_dims(data, 0)
+                        feature_tensor = np.concatenate((feature_tensor, data))
+                except:
+                    print("ERROR: Could not create feature from image")
+                    pass
+        # feature_tensor normalized
+        return feature_tensor
+
+    def read_path_images(self):
+        recordings = os.listdir(self.data_path)
+        encoder_input = []
+        decoder_input = []
+        decoder_output = []
+        c = 0
+        for r in recordings:
+            if not r.startswith("."):
+                recording = self.read_recording_image(self.data_path + "/" + r)
+                encoder_input.append(recording)
+                new_decoder_input, new_decoder_output = self.read_label(r)
+                decoder_input.append(new_decoder_input)
+                decoder_output.append(new_decoder_output)
+                c += 1
+                if c % 100 == 0:
+                    print(str(c) + "/" + str(len(recordings)))
+
+        self.encoder_input = encoder_input
+        self.decoder_input = decoder_input
+        self.decoder_output = decoder_output
+        return encoder_input, decoder_input, decoder_output
 
 #g_data = read_json("/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/01April_2010_Thursday_heute_default-0/openpose/01April_2010_Thursday_heute.avi_fn044294-0_keypoints.json")
 #g_feature = json_to_train_data(g_data)

@@ -12,7 +12,7 @@ class NetEval:
         self.dict = dict
 
         encoder_inputs = model.input[0]
-        encoder_outputs, state_h_enc, state_c_enc = model.layers[2].output
+        encoder_outputs, state_h_enc, state_c_enc = model.layers[5].output
         encoder_states = [state_h_enc, state_c_enc]
         self.encoder_model = K.models.Model(encoder_inputs, encoder_states)
 
@@ -20,11 +20,11 @@ class NetEval:
         decoder_state_input_h = K.layers.Input(shape=(latent_dim,), name='input3')
         decoder_state_input_c = K.layers.Input(shape=(latent_dim,), name='input4')
         decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
-        decoder_lstm = model.layers[3]
+        decoder_lstm = model.layers[6]
         decoder_outputs, state_h_dec, state_c_dec = decoder_lstm(
             decoder_inputs, initial_state=decoder_states_inputs)
         decoder_states = [state_h_dec, state_c_dec]
-        decoder_dense = model.layers[4]
+        decoder_dense = model.layers[7]
         decoder_outputs = decoder_dense(decoder_outputs)
         self.decoder_model = K.models.Model(
             [decoder_inputs] + decoder_states_inputs,
@@ -70,15 +70,8 @@ class NetEval:
             prediction = self.predict_sequence(np.expand_dims(encoder_input_test[i], 0), n_steps=decoder_output_test[i].shape[0])
             acc = 0
             for j in range(len(prediction)):
-                print("decode prediction:")
-                print(self.decode(prediction[j]))
-                print("decode output:")
-                print(self.decode(decoder_output_test[j]))
-                if self.decode(prediction[j]) == self.decode(decoder_output_test[j]):
-                    print("HELLO!")
+                if self.decode(prediction[j]) == self.decode(decoder_output_test[i][j]):
                     acc += 1
             acc = acc / len(prediction)
-            print(acc)
             acc_total += acc
-            print(acc_total)
         return acc_total / len(encoder_input_test)
