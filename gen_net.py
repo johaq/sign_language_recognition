@@ -35,7 +35,7 @@ class NetGen:
         image_input = K.layers.Input(shape=(
                 None, 260, 210, 3))
 
-        image_conv = K.layers.TimeDistributed(K.layers.Conv2D(filters=latent_dim, kernel_size=(10, 10)), name="bla")
+        image_conv = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(10, 10)), name="bla")
         image_conv_out = image_conv(image_input)
 
         image_max = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(5, 5)))
