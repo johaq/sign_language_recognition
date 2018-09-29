@@ -74,9 +74,6 @@ class NetTrain:
             encoder_input_data = np.expand_dims(encoder_input_data, 0)
             decoder_input_data = np.expand_dims(decoder_input_data, 0)
             decoder_target_data = np.expand_dims(decoder_target_data, 0)
-            print(encoder_input_data.shape)
-            print(decoder_input_data.shape)
-            print(decoder_target_data.shape)
             #encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.create_batch(batch_size=batch_size)
 
             callbacks = [best_model]

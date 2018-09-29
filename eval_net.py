@@ -12,7 +12,7 @@ class NetEval:
         self.dict = dict
 
         encoder_inputs = model.input[0]
-        encoder_outputs, state_h_enc, state_c_enc = model.layers[5].output
+        encoder_outputs, state_h_enc, state_c_enc = model.layers[-3].output
         encoder_states = [state_h_enc, state_c_enc]
         self.encoder_model = K.models.Model(encoder_inputs, encoder_states)
 
@@ -20,11 +20,11 @@ class NetEval:
         decoder_state_input_h = K.layers.Input(shape=(latent_dim,), name='input3')
         decoder_state_input_c = K.layers.Input(shape=(latent_dim,), name='input4')
         decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
-        decoder_lstm = model.layers[6]
+        decoder_lstm = model.layers[-2]
         decoder_outputs, state_h_dec, state_c_dec = decoder_lstm(
             decoder_inputs, initial_state=decoder_states_inputs)
         decoder_states = [state_h_dec, state_c_dec]
-        decoder_dense = model.layers[7]
+        decoder_dense = model.layers[-1]
         decoder_outputs = decoder_dense(decoder_outputs)
         self.decoder_model = K.models.Model(
             [decoder_inputs] + decoder_states_inputs,
