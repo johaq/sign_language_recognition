@@ -36,7 +36,7 @@ class NetGen:
         image_input = K.layers.Input(shape=(
                 None, 260, 210, 3))
 
-        image_conv = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(10, 10)), name="bla")
+        image_conv = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(10, 10)))
         image_conv_out = image_conv(image_input)
 
         image_max = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(5, 5)))
@@ -79,13 +79,13 @@ class NetGen:
         image_max_2 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
         image_max_out_2 = image_max_2(image_conv_out_2)
 
-        image_conv_3 = K.layers.TimeDistributed(K.layers.Conv2D(filters=2, kernel_size=(5, 5)))
+        image_conv_3 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(5, 5)))
         image_conv_out_3 = image_conv_3(image_max_out_2)
 
         image_max_3 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
         image_max_out_3 = image_max_3(image_conv_out_3)
 
-        image_conv_4 = K.layers.TimeDistributed(K.layers.Conv2D(filters=1, kernel_size=(5, 5)))
+        image_conv_4 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(5, 5)))
         image_conv_out_4 = image_conv_4(image_max_out_3)
 
         image_max_4 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
@@ -149,7 +149,7 @@ class NetGen:
         name = self.generate_netname(latent_dim, "convMergeLSTM")
         return model, name
 
-    def get_deep_conv_net(self, latent_dim=1024) -> K.Sequential:
+    def get_deep_conv_merge_net(self, latent_dim=1024) -> K.Sequential:
         image_input = K.layers.Input(shape=(
                 None, 260, 210, 3))
 
@@ -168,13 +168,13 @@ class NetGen:
         image_max_2 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
         image_max_out_2 = image_max_2(image_conv_out_2)
 
-        image_conv_3 = K.layers.TimeDistributed(K.layers.Conv2D(filters=2, kernel_size=(5, 5)))
+        image_conv_3 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(5, 5)))
         image_conv_out_3 = image_conv_3(image_max_out_2)
 
         image_max_3 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
         image_max_out_3 = image_max_3(image_conv_out_3)
 
-        image_conv_4 = K.layers.TimeDistributed(K.layers.Conv2D(filters=1, kernel_size=(5, 5)))
+        image_conv_4 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(5, 5)))
         image_conv_out_4 = image_conv_4(image_max_out_3)
 
         image_max_4 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))

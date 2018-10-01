@@ -66,24 +66,28 @@ def create_and_save_data_images(path, filename):
         d_output)
 
 
-def train(model_path, data_location, data_name, batch_size, num_epochs, save_interval, latent_dim):
-    net_trainer = train_net.NetTrain(model_path, data_location, data_name, latent_dim)
-    model_trained = net_trainer.train_model_images(batch_size=batch_size, end=num_epochs, save_interval=save_interval)
+def train(model_path, data_location, data_name, batch_size, num_epochs, save_interval, latent_dim, arch="std", with_op=False):
+    net_trainer = train_net.NetTrain(model_path, data_location, data_name, latent_dim, arch)
+    if arch == "std" :
+        model_trained = net_trainer.train_model(batch_size=batch_size, end=num_epochs, save_interval=save_interval)
+    elif arch == "std_conv" or arch == "deep_conv":
+        model_trained = net_trainer.train_model_images(batch_size=batch_size, end=num_epochs, save_interval=save_interval, with_op=with_op)
+    elif arch == "std_conv_merge" or arch == "deep_conv_merge":
+        model_trained = net_trainer.train_model_mix(batch_size=batch_size, end=num_epochs, save_interval=save_interval, with_op=with_op)
     return net_trainer, model_trained
 
 
 def evaluate(model, dict, latent_dim, encoder_input_data, decoder_output_data, load_model=True,):
     net_eval = eval_net.NetEval(model, dict, load_model, latent_dim)
-    return net_eval.test(encoder_input_data, decoder_output_data)
+    return net_eval.test_edit_distance(encoder_input_data, decoder_output_data)
 
 
 #test_data_generation()
 #create_and_save_data_images('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus_images')
-
 print('########### START CONV TRAINING WITH DATA_NAME:%s NUM_EPOCHS:%d LATENT_DIM:%d ###########' % (sys.argv[3], int(sys.argv[5]), int(sys.argv[7])))
 trainer, model = train(model_path=sys.argv[1], data_location=sys.argv[2], data_name=sys.argv[3],
                        batch_size=int(sys.argv[4]), num_epochs=int(sys.argv[5]),
-                       save_interval=int(sys.argv[6]), latent_dim=int(sys.argv[7]))
+                       save_interval=int(sys.argv[6]), latent_dim=int(sys.argv[7]), arch=sys.argv[8], with_op=(sys.argv[9] == "True"))
 print('########### EVALUATE MODEL ###########')
 images = True
 if images:

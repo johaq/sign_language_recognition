@@ -2,7 +2,7 @@ import datetime
 from keras.layers import Dense, LSTM, RepeatVector, Flatten, Conv1D, MaxPooling1D, Concatenate, Add
 import keras as K
 import numpy as np
-
+import editdistance
 
 class NetEval:
 
@@ -38,6 +38,7 @@ class NetEval:
         target_seq = np.array([0.0 for _ in range(cardinality)]).reshape(1, 1, cardinality)
         # collect predictions
         output = list()
+        prediction_string = ""
         for t in range(n_steps):
             # predict next char
             yhat, h, c = self.decoder_model.predict([target_seq] + state)
@@ -53,7 +54,8 @@ class NetEval:
             for x in self.dict:
                 if self.dict[x] == decoded_word:
                     print(x, end=' ')
-        return np.array(output)
+                    prediction_string = prediction_string + x
+        return np.array(output), prediction_string
 
     def decode(self, datum):
         return np.argmax(datum)
@@ -73,5 +75,22 @@ class NetEval:
                 if self.decode(prediction[j]) == self.decode(decoder_output_test[i][j]):
                     acc += 1
             acc = acc / len(prediction)
+            acc_total += acc
+        return acc_total / len(encoder_input_test)
+
+    def test_edit_distance(self, encoder_input_test, decoder_output_test):
+        acc_total = 0
+        target_string = ""
+        for i in range(len(encoder_input_test)):
+            print("\n Target:")
+            for j in range(decoder_output_test[i].shape[0]):
+                decoded_word = self.decode(decoder_output_test[i][j])
+                for x in self.dict:
+                    if self.dict[x] == decoded_word:
+                        print(x, end=' ')
+                        target_string = target_string + x
+            prediction, prediction_string = self.predict_sequence(np.expand_dims(encoder_input_test[i], 0),
+                                               n_steps=decoder_output_test[i].shape[0])
+            acc = 1 - editdistance.eval(prediction_string, target_string) / np.maximum(len(prediction_string), len(target_string))
             acc_total += acc
         return acc_total / len(encoder_input_test)

@@ -5,9 +5,19 @@ import numpy as np
 
 
 class NetTrain:
-    def __init__(self, model_path, data_location, data_name, latent_dim=1024):
+    def __init__(self, model_path, data_location, data_name, latent_dim=1024, arch="std"):
         self.net_generator = gen_net.NetGen()
-        self.model, self.model_name= self.net_generator.get_std_conv_net(latent_dim)
+        if arch == "std":
+            self.model, self.model_name= self.net_generator.get_std_net(latent_dim)
+        elif arch == "std_conv":
+            self.model, self.model_name= self.net_generator.get_std_conv_net(latent_dim)
+        elif arch == "deep_conv":
+            self.model, self.model_name= self.net_generator.get_deep_conv_net(latent_dim)
+        elif arch == "std_conv_merge":
+            self.model, self.model_name= self.net_generator.get_std_conv_merge_net(latent_dim)
+        elif arch == "deep_conv_merge":
+            self.model, self.model_name= self.net_generator.get_deep_conv_merge_net(latent_dim)
+
         self.data_generator = gen_data.DataGen(
             data_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/",
             corpus_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus")
@@ -57,7 +67,8 @@ class NetTrain:
                     initial: int = 0,
                     end: int = 1,
                     batch_size=1,
-                    save_interval = 100) -> K.models.Sequential:
+                    save_interval = 100,
+                    with_op = False) -> K.models.Sequential:
 
         best_model = K.callbacks.ModelCheckpoint(self.path + self.reduce_modelname(
             self.model_name) + '.epoch{epoch:04d}',
@@ -70,7 +81,10 @@ class NetTrain:
 
         for epoch in range(initial, end):
 
-            encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_random_image_sample()
+            if with_op:
+                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_random_image_op_sample()
+            else:
+                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_random_image_sample()
             encoder_input_data = np.expand_dims(encoder_input_data, 0)
             decoder_input_data = np.expand_dims(decoder_input_data, 0)
             decoder_target_data = np.expand_dims(decoder_target_data, 0)
@@ -81,6 +95,47 @@ class NetTrain:
                 callbacks.append(checkpoint)
 
             self.model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
+                           batch_size=batch_size,
+                           callbacks=callbacks,
+                           epochs=epoch+1,
+                           initial_epoch=epoch,
+                           verbose=0)
+
+        self.model.save(self.path + self.model_name + '.epoch{end:04d}')
+        return self.model
+
+    def train_model_mix(self,
+                    initial: int = 0,
+                    end: int = 1,
+                    batch_size=1,
+                    save_interval = 100,
+                    with_op = False) -> K.models.Sequential:
+
+        best_model = K.callbacks.ModelCheckpoint(self.path + self.reduce_modelname(
+            self.model_name) + '.epoch{epoch:04d}',
+                                                 save_best_only=True,
+                                                 monitor='categorical_accuracy',
+                                                 verbose=1)
+        checkpoint = K.callbacks.ModelCheckpoint(self.path + self.reduce_modelname(
+            self.model_name) + '.epoch{epoch:04d}',
+                                                 verbose=1)
+
+        for epoch in range(initial, end):
+
+            if with_op:
+                encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_random_mix_op_sample()
+            else:
+                encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_random_mix_sample()
+            encoder_input_data_im = np.expand_dims(encoder_input_data_im, 0)
+            decoder_input_data_im = np.expand_dims(decoder_input_data_im, 0)
+            decoder_target_data_im = np.expand_dims(decoder_target_data_im, 0)
+            encoder_input_data_op = np.expand_dims(encoder_input_data_op, 0)
+
+            callbacks = [best_model]
+            if not epoch % save_interval:
+                callbacks.append(checkpoint)
+
+            self.model.fit([encoder_input_data_im, encoder_input_data_op, decoder_input_data_im], decoder_target_data_im,
                            batch_size=batch_size,
                            callbacks=callbacks,
                            epochs=epoch+1,

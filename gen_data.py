@@ -185,6 +185,30 @@ class DataGen:
         decoder_input, decoder_output = self.read_label(recordings[index])
         return encoder_input, decoder_input, decoder_output
 
+    def get_random_image_op_sample(self):
+        recordings = os.listdir(self.data_path)
+        index = random.randint(0, len(recordings) - 1)
+
+        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
+        decoder_input, decoder_output = self.read_label(recordings[index])
+        return encoder_input, decoder_input, decoder_output
+
+    def get_random_mix_sample(self):
+        recordings = os.listdir(self.data_path)
+        index = random.randint(0, len(recordings) - 1)
+
+        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
+        decoder_input, decoder_output = self.read_label(recordings[index])
+        return encoder_input, decoder_input, decoder_output, self.encoder_input[index]
+
+    def get_random_mix_op_sample(self):
+        recordings = os.listdir(self.data_path)
+        index = random.randint(0, len(recordings) - 1)
+
+        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
+        decoder_input, decoder_output = self.read_label(recordings[index])
+        return encoder_input, decoder_input, decoder_output, self.encoder_input[index]
+
     def load_from_file(self, path, filename):
         self.encoder_input = np.load(path + '/' + '' + filename + '_' + 'e_input.npy')
         self.decoder_input = np.load(path + '/' + '' + filename + '_' + 'd_input.npy')
