@@ -79,12 +79,12 @@ class NetTrain:
                     with_op = False) -> K.models.Sequential:
 
         best_model = K.callbacks.ModelCheckpoint(self.path + self.reduce_modelname(
-            self.model_name) + '.epoch{epoch:04d}',
+            self.model_name) + str(with_op) + '.epoch{epoch:04d}',
                                                  save_best_only=True,
                                                  monitor='categorical_accuracy',
                                                  verbose=1)
         checkpoint = K.callbacks.ModelCheckpoint(self.path + self.reduce_modelname(
-            self.model_name) + '.epoch{epoch:04d}',
+            self.model_name) + str(with_op) + '.epoch{epoch:04d}',
                                                  verbose=1)
 
         indexing = [i for i in range(len(self.data_generator.encoder_input))]
@@ -118,7 +118,7 @@ class NetTrain:
                            initial_epoch=epoch,
                            verbose=0)
 
-        self.model.save(self.path + self.model_name + '.epoch{end:04d}')
+        self.model.save(self.path + self.model_name + str(with_op) + '.epoch{end:04d}')
         return self.model
 
     def train_model_mix(self,
@@ -129,12 +129,12 @@ class NetTrain:
                     with_op = False) -> K.models.Sequential:
 
         best_model = K.callbacks.ModelCheckpoint(self.path + self.reduce_modelname(
-            self.model_name) + '.epoch{epoch:04d}',
+            self.model_name) + str(with_op) + '.epoch{epoch:04d}',
                                                  save_best_only=True,
                                                  monitor='categorical_accuracy',
                                                  verbose=1)
         checkpoint = K.callbacks.ModelCheckpoint(self.path + self.reduce_modelname(
-            self.model_name) + '.epoch{epoch:04d}',
+            self.model_name) + str(with_op) + '.epoch{epoch:04d}',
                                                  verbose=1)
 
         indexing = [i for i in range(len(self.data_generator.encoder_input))]
@@ -167,7 +167,7 @@ class NetTrain:
                            initial_epoch=epoch,
                            verbose=0)
 
-        self.model.save(self.path + self.model_name + '.epoch{end:04d}')
+        self.model.save(self.path + self.model_name + str(with_op) + '.epoch{end:04d}')
         return self.model
 
     def reduce_modelname(self,
