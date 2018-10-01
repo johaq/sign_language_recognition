@@ -2,6 +2,7 @@ import gen_data
 import gen_net
 import keras as K
 import numpy as np
+from random import shuffle
 
 
 class NetTrain:
@@ -41,9 +42,16 @@ class NetTrain:
             self.model_name) + '.epoch{epoch:04d}',
                                                  verbose=1)
 
+        indexing = [i for i in range(len(self.data_generator.encoder_input))]
+        shuffle(indexing)
+        index = 0
+
         for epoch in range(initial, end):
 
-            encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_random_sample()
+            encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_sample(indexing[index])
+            index += 1
+            if index >= len(self.data_generator.encoder_input):
+                index = 0
             encoder_input_data = np.expand_dims(encoder_input_data, 0)
             decoder_input_data = np.expand_dims(decoder_input_data, 0)
             decoder_target_data = np.expand_dims(decoder_target_data, 0)
@@ -79,12 +87,21 @@ class NetTrain:
             self.model_name) + '.epoch{epoch:04d}',
                                                  verbose=1)
 
+        indexing = [i for i in range(len(self.data_generator.encoder_input))]
+        shuffle(indexing)
+        index = 0
+
+
         for epoch in range(initial, end):
 
             if with_op:
-                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_random_image_op_sample()
+                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_op_sample(indexing[index])
             else:
-                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_random_image_sample()
+                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_sample(indexing[index])
+            index += 1
+            if index >= len(self.data_generator.encoder_input):
+                index = 0
+
             encoder_input_data = np.expand_dims(encoder_input_data, 0)
             decoder_input_data = np.expand_dims(decoder_input_data, 0)
             decoder_target_data = np.expand_dims(decoder_target_data, 0)
@@ -120,12 +137,20 @@ class NetTrain:
             self.model_name) + '.epoch{epoch:04d}',
                                                  verbose=1)
 
+        indexing = [i for i in range(len(self.data_generator.encoder_input))]
+        shuffle(indexing)
+        index = 0
+
         for epoch in range(initial, end):
 
             if with_op:
-                encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_random_mix_op_sample()
+                encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_mix_op_sample(indexing[index])
             else:
-                encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_random_mix_sample()
+                encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_mix_sample(indexing[index])
+            index += 1
+            if index >= len(self.data_generator.encoder_input):
+                index = 0
+
             encoder_input_data_im = np.expand_dims(encoder_input_data_im, 0)
             decoder_input_data_im = np.expand_dims(decoder_input_data_im, 0)
             decoder_target_data_im = np.expand_dims(decoder_target_data_im, 0)
