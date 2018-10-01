@@ -222,6 +222,7 @@ class DataGen:
     def get_image_op_sample(self, index):
         recordings = os.listdir(self.data_path)
 
+        print(self.data_path + "/" + recordings[index] + "/openpose/")
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
         decoder_input, decoder_output = self.read_label(recordings[index])
         return encoder_input, decoder_input, decoder_output
