@@ -3,6 +3,8 @@ import train_net
 import eval_net
 import numpy as np
 import sys
+from PIL import ImageFile
+
 
 
 def test_data_generation():
@@ -91,6 +93,7 @@ trainer, model = train(model_path=sys.argv[1], data_location=sys.argv[2], data_n
 print('########### EVALUATE MODEL ###########')
 images = True
 if images:
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
     acc = 0
     for i in range(100):
         encoder_input_data, decoder_input_data, decoder_target_data = trainer.data_generator.get_random_image_sample()
