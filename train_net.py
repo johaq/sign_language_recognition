@@ -94,10 +94,15 @@ class NetTrain:
 
         for epoch in range(initial, end):
 
-            if with_op:
-                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_op_sample(indexing[index])
-            else:
-                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_sample(indexing[index])
+            try:
+                if with_op:
+                    encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_op_sample(indexing[index])
+                else:
+                    encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_sample(indexing[index])
+            except:
+                index += 1
+                print("skipping")
+                continue
             index += 1
             if index >= len(self.data_generator.encoder_input):
                 index = 0
@@ -143,10 +148,16 @@ class NetTrain:
 
         for epoch in range(initial, end):
 
-            if with_op:
-                encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_mix_op_sample(indexing[index])
-            else:
-                encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_mix_sample(indexing[index])
+            try:
+                if with_op:
+                    encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_mix_op_sample(indexing[index])
+                else:
+                    encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_mix_sample(indexing[index])
+            except:
+                index += 1
+                print("skipping")
+                continue
+
             index += 1
             if index >= len(self.data_generator.encoder_input):
                 index = 0
