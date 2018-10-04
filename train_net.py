@@ -155,7 +155,12 @@ class NetTrain:
                     encoder_input_data_im, decoder_input_data_im, decoder_target_data_im, encoder_input_data_op= self.data_generator.get_mix_sample(indexing[index])
             except:
                 index += 1
-                print("skipping")
+                print("skipping: PIL truncated image error")
+                continue
+
+            if encoder_input_data_im.shape[0] != encoder_input_data_op.shape[0]:
+                index += 1
+                print("skipping: json files incomplete")
                 continue
 
             index += 1
@@ -178,7 +183,6 @@ class NetTrain:
                            initial_epoch=epoch,
                            verbose=0)
 
-        self.model.save(self.path + self.model_name + str(with_op) + '.epoch{end:04d}')
         return self.model
 
     def reduce_modelname(self,
