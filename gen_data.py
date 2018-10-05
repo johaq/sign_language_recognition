@@ -199,7 +199,8 @@ class DataGen:
 
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
         decoder_input, decoder_output = self.read_label(recordings[index])
-        return encoder_input, decoder_input, decoder_output, self.encoder_input[index]
+        encoder_input_op = self.read_recording(recordings[index])
+        return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def get_random_mix_op_sample(self):
         recordings = os.listdir(self.data_path)
@@ -207,7 +208,8 @@ class DataGen:
 
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
         decoder_input, decoder_output = self.read_label(recordings[index])
-        return encoder_input, decoder_input, decoder_output, self.encoder_input[index]
+        encoder_input_op = self.read_recording(recordings[index])
+        return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def get_sample(self, index):
         return self.encoder_input[index], self.decoder_input[index], self.decoder_output[index]

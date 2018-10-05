@@ -112,6 +112,55 @@ class NetGen:
         name = self.generate_netname(latent_dim, "deepConvLSTM")
         return model, name
 
+    def get_deep_conv_net_google(self, latent_dim=1024) -> K.Sequential:
+        image_input = K.layers.Input(shape=(
+                None, 260, 210, 3))
+
+        image_conv_1 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(3, 3)))
+        image_conv_out_1 = image_conv_1(image_input)
+
+        image_max_1 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
+        image_max_out_1 = image_max_1(image_conv_out_1)
+
+        image_conv_2 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(1, 1)))
+        image_conv_out_2 = image_conv_2(image_max_out_1)
+
+        image_max_2 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
+        image_max_out_2 = image_max_2(image_conv_out_2)
+
+        image_conv_3 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(3, 3)))
+        image_conv_out_3 = image_conv_3(image_max_out_2)
+
+        image_max_3 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
+        image_max_out_3 = image_max_3(image_conv_out_3)
+
+        image_conv_4 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(3, 3)))
+        image_conv_out_4 = image_conv_4(image_max_out_3)
+
+        image_max_4 = K.layers.TimeDistributed(K.layers.MaxPool2D(pool_size=(2, 2)))
+        image_max_out_4 = image_max_4(image_conv_out_4)
+
+        image_flat = K.layers.TimeDistributed(K.layers.Flatten())
+        encoder_input = image_flat(image_max_out_4)
+
+        encoder = LSTM(latent_dim, return_state=True)
+        encoder_output, state_h, state_c = encoder(encoder_input)
+        encoder_states = [state_h, state_c]
+
+        decoder_input = K.layers.Input(shape=(None, 1220))
+        decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True)
+        decoder_output, _, _ = decoder_lstm(decoder_input, initial_state=encoder_states)
+        decoder_dense = K.layers.Dense(1220, activation='softmax')
+        decoder_output = decoder_dense(decoder_output)
+
+        model = K.models.Model([image_input, decoder_input], decoder_output)
+        model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+        K.utils.plot_model(model, to_file="model.png", show_shapes=True)
+        model.summary()
+
+        name = self.generate_netname(latent_dim, "deepConvLSTM")
+        return model, name
+
     def get_std_conv_merge_net(self, latent_dim=1024) -> K.Sequential:
         image_input = K.layers.Input(shape=(
                 None, 260, 210, 3))
