@@ -199,7 +199,7 @@ class DataGen:
 
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
         decoder_input, decoder_output = self.read_label(recordings[index])
-        encoder_input_op = self.read_recording(recordings[index])
+        encoder_input_op = self.read_recording(self.data_path + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def get_random_mix_op_sample(self):
@@ -208,7 +208,7 @@ class DataGen:
 
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
         decoder_input, decoder_output = self.read_label(recordings[index])
-        encoder_input_op = self.read_recording(recordings[index])
+        encoder_input_op = self.read_recording(self.data_path + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def get_sample(self, index):
@@ -216,29 +216,32 @@ class DataGen:
 
     def get_image_sample(self, index):
         recordings = os.listdir(self.data_path)
+        print(recordings[index])
 
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
-        decoder_input, decoder_output = self.read_label(recordings[index])
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output
 
     def get_image_op_sample(self, index):
         recordings = os.listdir(self.data_path)
+        print(recordings[index])
 
-        print(self.data_path + "/" + recordings[index] + "/openpose/")
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
-        decoder_input, decoder_output = self.read_label(recordings[index])
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output
 
     def get_mix_sample(self, index):
         recordings = os.listdir(self.data_path)
+        print(recordings[index])
 
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
         decoder_input, decoder_output = self.read_label(recordings[index])
-        encoder_input_op = self.read_recording(recordings[index])
+        encoder_input_op = self.read_recording(self.data_path + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def get_mix_op_sample(self, index):
         recordings = os.listdir(self.data_path)
+        print(recordings[index])
 
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
         decoder_input, decoder_output = self.read_label(recordings[index])
