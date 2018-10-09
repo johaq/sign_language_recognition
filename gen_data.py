@@ -245,7 +245,7 @@ class DataGen:
 
         encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
         decoder_input, decoder_output = self.read_label(recordings[index])
-        encoder_input_op = self.read_recording(recordings[index])
+        encoder_input_op = self.read_recording(self.data_path + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def load_from_file(self, path, filename):
@@ -282,6 +282,21 @@ class DataGen:
                     dict[w] = class_n
                     class_n += 1
         self.dict = dict
+        return dict
+
+    def get_class_distribution(self):
+        print("Getting class distribution")
+        tree = ET.parse(self.corpus_path)
+        root = tree.getroot()
+        dict = {'': 0}
+        for recording in root.findall('recording'):
+            seg = recording.find('segment')
+            orth = seg.find('orth').text
+            for w in orth.split():
+                if w in dict:
+                    dict[w] += 1
+                else:
+                    dict[w] = 1
         return dict
 
     def split_testset(self, test_set_size_pct):
