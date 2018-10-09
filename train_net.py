@@ -183,6 +183,7 @@ class NetTrain:
                            initial_epoch=epoch,
                            verbose=0)
 
+        self.model.save(self.path + self.model_name + str(with_op) + '.epoch{end:04d}')
         return self.model
 
     def reduce_modelname(self,
