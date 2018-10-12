@@ -67,7 +67,7 @@ class NetTrain:
                            callbacks=callbacks,
                            epochs=epoch+1,
                            initial_epoch=epoch,
-                           verbose=0)
+                           verbose=1)
 
         self.model.save(self.path + self.model_name + '.epoch{end:04d}')
         return self.model
@@ -135,7 +135,7 @@ class NetTrain:
                            callbacks=callbacks,
                            epochs=epoch+1,
                            initial_epoch=epoch,
-                           verbose=0)
+                           verbose=1)
 
         self.model.save(self.path + self.model_name + str(with_op) + '.epoch{end:04d}')
         return self.model
@@ -195,7 +195,7 @@ class NetTrain:
                            callbacks=callbacks,
                            epochs=epoch+1,
                            initial_epoch=epoch,
-                           verbose=0)
+                           verbose=1)
 
         self.model.save(self.path + self.model_name + str(with_op) + '.epoch{end:04d}')
         return self.model
