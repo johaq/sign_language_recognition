@@ -81,8 +81,8 @@ def train(model_path, data_location, data_name, batch_size, num_epochs, save_int
     return net_trainer, model_trained
 
 
-def evaluate(model, dict, latent_dim, encoder_input_data, decoder_output_data, load_model=True):
-    net_eval = eval_net.NetEval(model, dict, load_model, latent_dim)
+def evaluate(model, dict, latent_dim, encoder_input_data, decoder_output_data, load_model=True, mix=False):
+    net_eval = eval_net.NetEval(model, dict, load_model, latent_dim, mix=mix)
     return net_eval.test_edit_distance(encoder_input_data, decoder_output_data)
 
 
@@ -106,7 +106,7 @@ def evaluate_image_model(model, arch, op, latent_dim, num):
                 encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_mix_op_sample()
 
         acc += evaluate(model, data_generator.dict, int(sys.argv[7]),
-                        np.expand_dims(encoder_input_data, 0), np.expand_dims(decoder_target_data, 0), load_model=True)
+                        np.expand_dims(encoder_input_data, 0), np.expand_dims(decoder_target_data, 0), load_model=True, mix=("merge" in arch))
     acc = acc / num
     return acc
 
@@ -212,8 +212,8 @@ else:
             else:
                 with_op = False
             print('########### EVALUATING MODEL %s WITH ARCH: %s, DIM: %d, OP: %s ###########' % (m,arch,latent_dim,with_op))
-            #acc = evaluate_image_model(loaded_model, arch=arch, with_op=with_op, latent_dim=latent_dim, num=250)
-            #print('\n########### MODEL ACCURACY: %f ###########' % acc)
+            acc = evaluate_image_model(loaded_model, arch=arch, with_op=with_op, latent_dim=latent_dim, num=250)
+            print('\n########### MODEL ACCURACY: %f ###########' % acc)
 
 
 # print('########### EVALUATE MODEL ###########')

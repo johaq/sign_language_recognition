@@ -6,19 +6,25 @@ import editdistance
 
 class NetEval:
 
-    def __init__(self, model, dict, load_model, latent_dim):
+    def __init__(self, model, dict, load_model, latent_dim, mix=False):
         if load_model:
             model = K.models.load_model(model)
         self.dict = dict
 
-        encoder_inputs = model.input[0]
+        if not mix:
+            encoder_inputs = model.input[0]
+        else:
+            encoder_inputs = [model.input[0], model.input[1]]
         encoder_outputs, state_h_enc, state_c_enc = model.layers[-3].output
         encoder_states = [state_h_enc, state_c_enc]
         self.encoder_model = K.models.Model(encoder_inputs, encoder_states)
 
-        decoder_inputs = model.input[1]
-        decoder_state_input_h = K.layers.Input(shape=(latent_dim,), name='input3')
-        decoder_state_input_c = K.layers.Input(shape=(latent_dim,), name='input4')
+        if not mix:
+            decoder_inputs = model.input[1]
+        else:
+            decoder_inputs = model.input[2]
+        decoder_state_input_h = K.layers.Input(shape=(latent_dim,), name='altinput1')
+        decoder_state_input_c = K.layers.Input(shape=(latent_dim,), name='altinput2')
         decoder_states_inputs = [decoder_state_input_h, decoder_state_input_c]
         decoder_lstm = model.layers[-2]
         decoder_outputs, state_h_dec, state_c_dec = decoder_lstm(

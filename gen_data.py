@@ -5,7 +5,8 @@ import xml.etree.ElementTree as ET
 import random
 import keras as K
 import imageio
-
+from sklearn.decomposition import IncrementalPCA
+import pickle
 
 
 
@@ -357,6 +358,59 @@ class DataGen:
         self.decoder_input = decoder_input
         self.decoder_output = decoder_output
         return encoder_input, decoder_input, decoder_output
+
+    def compute_pca_of_image_set(self):
+        recordings = os.listdir(self.data_path)
+
+        c = 0
+        # mean_r = 0
+        # mean_g = 0
+        # mean_b = 0
+        # num_i = 0
+        # for r in recordings:
+        #     c += 1
+        #     images = os.listdir(self.data_path + "/" + r + "/")
+        #     for i in images:
+        #         if i.endswith(".png"):
+        #             data = self.read_image(self.data_path + "/" + r + "/" + i)
+        #             mean_r += np.mean(data[:, :, 0])
+        #             mean_g += np.mean(data[:, :, 1])
+        #             mean_b += np.mean(data[:, :, 2])
+        #             num_i += 1
+        # mean_r = mean_r/num_i
+        # mean_g = mean_g / num_i
+        # mean_b = mean_b / num_i
+        # print(mean_r)
+        # print(mean_g)
+        # print(mean_b)
+        mean_r = 134.09352525641472
+        mean_g = 131.9404211385675
+        mean_b = 129.67342747136797
+        m = [mean_r, mean_g, mean_b]
+
+        transformer = IncrementalPCA(n_components=3)
+        for r in recordings:
+            c += 1
+            images = os.listdir(self.data_path + "/" + r + "/")
+            res = np.zeros(shape=(1, 3))
+            for i in images:
+                if i.endswith(".png"):
+                    data = self.read_image(self.data_path + "/" + r + "/" + i)
+                    arr = data.reshape((260*210), 3)
+                    res = np.concatenate((res, arr), axis=0)
+            res = np.delete(res, (0), axis=0)
+            res = res - m
+            transformer.partial_fit(res)
+
+            if not c % 100:
+                print(str(c) + '/' + str(len(recordings)))
+
+        pickle.dump(transformer, open("pca.p", "wb"))
+        print(transformer.get_covariance())
+
+    def augment_data(self, image_data, num):
+        #TODO: Do augment
+        return image_data
 
 #g_data = read_json("/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/01April_2010_Thursday_heute_default-0/openpose/01April_2010_Thursday_heute.avi_fn044294-0_keypoints.json")
 #g_feature = json_to_train_data(g_data)

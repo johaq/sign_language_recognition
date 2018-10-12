@@ -23,6 +23,7 @@ class NetTrain:
             data_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/",
             corpus_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus")
         self.data_generator.load_from_file(data_location, data_name)
+        #self.data_generator.compute_pca_of_image_set()
         #self.data_generator.load_from_file(data_location, data_name)
         #self.data_generator.split_testset(0.1)
         self.path = model_path
@@ -94,23 +95,36 @@ class NetTrain:
 
         for epoch in range(initial, end):
 
-            try:
-                if with_op:
-                    encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_op_sample(indexing[index])
-                else:
-                    encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_sample(indexing[index])
-            except:
-                index += 1
-                print("skipping")
-                continue
+            #try:
+            if with_op:
+                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_op_sample(indexing[index])
+            else:
+                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_sample(indexing[index])
+            #except:
+            #    index += 1
+            #    print("skipping")
+            #    continue
             index += 1
             if index >= len(self.data_generator.encoder_input):
                 index = 0
 
-            encoder_input_data = np.expand_dims(encoder_input_data, 0)
-            decoder_input_data = np.expand_dims(decoder_input_data, 0)
-            decoder_target_data = np.expand_dims(decoder_target_data, 0)
-            #encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.create_batch(batch_size=batch_size)
+            if batch_size == 1:
+                encoder_input_data = np.expand_dims(encoder_input_data, 0)
+                decoder_input_data = np.expand_dims(decoder_input_data, 0)
+                decoder_target_data = np.expand_dims(decoder_target_data, 0)
+                #encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.create_batch(batch_size=batch_size)
+            else:
+                encoder_input_data = self.data_generator.augment_data(encoder_input_data, batch_size)
+                decoder_input_data = np.expand_dims(decoder_input_data, 0)
+                decoder_input_data_batch = np.concatenate((decoder_input_data, decoder_input_data))
+                decoder_target_data = np.expand_dims(decoder_target_data, 0)
+                decoder_target_data_batch = np.concatenate((decoder_target_data, decoder_target_data))
+
+                for i in range(batch_size-1):
+                    decoder_input_data_batch = np.concatenate((decoder_input_data_batch, decoder_input_data))
+                    decoder_target_data_batch = np.concatenate((decoder_target_data_batch, decoder_target_data))
+                decoder_input_data = decoder_input_data_batch
+                decoder_target_data = decoder_target_data_batch
 
             callbacks = [best_model]
             if not epoch % save_interval:
