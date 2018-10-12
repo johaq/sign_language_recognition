@@ -95,15 +95,15 @@ class NetTrain:
 
         for epoch in range(initial, end):
 
-            #try:
-            if with_op:
-                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_op_sample(indexing[index])
-            else:
-                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_sample(indexing[index])
-            #except:
-            #    index += 1
-            #    print("skipping")
-            #    continue
+            try:
+                if with_op:
+                    encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_op_sample(indexing[index])
+                else:
+                    encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_image_sample(indexing[index])
+            except:
+                index += 1
+                print("skipping")
+                continue
             index += 1
             if index >= len(self.data_generator.encoder_input):
                 index = 0
