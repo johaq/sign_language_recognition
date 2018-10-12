@@ -360,6 +360,7 @@ class DataGen:
         return encoder_input, decoder_input, decoder_output
 
     def compute_pca_of_image_set(self):
+        print("COMPUTING PCA OF IMAGE SET \n \n \n \n \n \n \n \n \n \n \n \n")
         recordings = os.listdir(self.data_path)
 
         c = 0
