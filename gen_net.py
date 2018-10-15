@@ -265,7 +265,7 @@ class NetGen:
         image_flat = K.layers.TimeDistributed(K.layers.Flatten())
         flat_out = image_flat(image_feat_input)
 
-        dense = K.layers.TimeDistributed(K.layers.Dense(4069))
+        dense = K.layers.TimeDistributed(K.layers.Dense(2000))
         encoder_input = dense(flat_out)
 
         encoder = LSTM(latent_dim, return_state=True)
