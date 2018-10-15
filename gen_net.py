@@ -253,6 +253,42 @@ class NetGen:
         name = self.generate_netname(latent_dim, "deepConvMergeLSTM")
         return model, name
 
+    def get_vgg_19_image_net(self, latent_dim, trainable=False):
+        model_vgg = K.applications.VGG19(weights='imagenet', include_top=False)
+
+        image_input = K.layers.Input(shape=(
+                None, 260, 210, 3))
+
+        image_feat = K.layers.TimeDistributed(model_vgg, trainable=trainable)
+        image_feat_input = image_feat(image_input)
+
+        image_flat = K.layers.TimeDistributed(K.layers.Flatten())
+        flat_out = image_flat(image_feat_input)
+
+        dense = K.layers.TimeDistributed(K.layers.Dense(4069))
+        encoder_input = dense(flat_out)
+
+        encoder = LSTM(latent_dim, return_state=True)
+        encoder_output, state_h, state_c = encoder(encoder_input)
+        encoder_states = [state_h, state_c]
+
+        decoder_input = K.layers.Input(shape=(None, 1220))
+        decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True)
+        decoder_output, _, _ = decoder_lstm(decoder_input, initial_state=encoder_states)
+        decoder_dense = K.layers.Dense(1220, activation='softmax')
+        decoder_output = decoder_dense(decoder_output)
+
+        model = K.models.Model([image_input, decoder_input], decoder_output)
+        model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
+        K.utils.plot_model(model, to_file="model_vgg_image.png", show_shapes=True)
+        model.summary()
+
+        name = self.generate_netname(latent_dim, "vgg_19_retrain_" + str(trainable))
+        return model, name
+
+
+
+
     def get_simple_seq2seq_net(self):
         pass
 

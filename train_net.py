@@ -18,12 +18,17 @@ class NetTrain:
             self.model, self.model_name= self.net_generator.get_std_conv_merge_net(latent_dim)
         elif arch == "deep_conv_merge":
             self.model, self.model_name= self.net_generator.get_deep_conv_merge_net(latent_dim)
+        elif arch == "vgg_19_true":
+            self.model, self.model_name= self.net_generator.get_vgg_19_image_net(latent_dim, trainable=True)
+        elif arch == "vgg_19_false":
+            self.model, self.model_name= self.net_generator.get_vgg_19_image_net(latent_dim, trainable=False)
+
 
         self.data_generator = gen_data.DataGen(
             data_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/",
             corpus_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus")
         self.data_generator.load_from_file(data_location, data_name)
-        self.data_generator.compute_pca_of_image_set()
+        #self.data_generator.compute_pca_of_image_set()
         #self.data_generator.load_from_file(data_location, data_name)
         #self.data_generator.split_testset(0.1)
         self.path = model_path

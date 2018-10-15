@@ -5,7 +5,12 @@ import numpy as np
 import sys
 import editdistance
 import os
+import vgg_19_model
 from PIL import ImageFile
+import pickle
+import keras as K
+import cmu_model
+
 
 
 
@@ -74,7 +79,7 @@ def train(model_path, data_location, data_name, batch_size, num_epochs, save_int
     net_trainer = train_net.NetTrain(model_path, data_location, data_name, latent_dim, arch)
     if arch == "std" :
         model_trained = net_trainer.train_model(batch_size=batch_size, end=num_epochs, save_interval=save_interval)
-    elif arch == "std_conv" or arch == "deep_conv":
+    elif arch == "std_conv" or arch == "deep_conv" or arch == "vgg_19_true" or arch == "vgg_19_false":
         model_trained = net_trainer.train_model_images(batch_size=batch_size, end=num_epochs, save_interval=save_interval, with_op=with_op)
     elif arch == "std_conv_merge" or arch == "deep_conv_merge":
         model_trained = net_trainer.train_model_mix(batch_size=batch_size, end=num_epochs, save_interval=save_interval, with_op=with_op)
@@ -172,6 +177,11 @@ def get_dumb_model_acc():
 # test_data_generation()
 # create_and_save_data_images('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus_images')
 # get_dumb_model_acc()
+
+# Test pretrained model
+#model = vgg_19_model.VGG_19('/home/johannes/Downloads/vgg19_weights.h5')
+#model = K.applications.VGG19(weights='imagenet')
+#K.utils.plot_model(model, to_file="model_vgg_19_full.png", show_shapes=True)
 
 do_train = True
 if do_train:
