@@ -28,7 +28,7 @@ class NetTrain:
             data_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/",
             corpus_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus")
         self.data_generator.load_from_file(data_location, data_name)
-        #self.data_generator.compute_pca_of_image_set()
+        self.data_generator.compute_pca_of_image_set()
         #self.data_generator.load_from_file(data_location, data_name)
         #self.data_generator.split_testset(0.1)
         self.path = model_path

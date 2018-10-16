@@ -401,6 +401,7 @@ class DataGen:
                     res = np.concatenate((res, arr), axis=0)
             res = np.delete(res, (0), axis=0)
             res = res - m
+            res = res / 255
             transformer.partial_fit(res)
 
             if not c % 100:
