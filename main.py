@@ -100,22 +100,28 @@ def evaluate_image_model(model, arch, op, latent_dim, num):
         data_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/",
         corpus_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus")
     data_generator.load_from_file(sys.argv[2], sys.argv[3])
-    if arch == "std":
-        encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
-    elif arch == "std_conv" or arch == "deep_conv" or arch == "vgg_19_retrain_False" or arch == "vgg_19_retrain_True":
-        if not op:
-            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_sample()
-        else:
-            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_op_sample()
-    elif arch == "std_conv_merge" or arch == "deep_conv_merge":
-        if not op:
-            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_mix_sample()
-        else:
-            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_mix_op_sample()
+    net_eval = eval_net.NetEval(model, data_generator.dict, load_model=True, latent_dim=latent_dim, mix=("merge" in arch))
 
-    acc = evaluate(model, data_generator.dict, latent_dim,
-                    np.expand_dims(encoder_input_data, 0), np.expand_dims(decoder_target_data, 0), load_model=True, mix=("merge" in arch), num=num)
-    return acc
+    acc = 0
+    for i in range(num):
+        if arch == "std":
+            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
+            encoder_input_data = np.expand_dims(encoder_input_data, 0)
+        elif arch == "std_conv" or arch == "deep_conv" or arch == "vgg_19_retrain_False" or arch == "vgg_19_retrain_True":
+            if not op:
+                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_sample()
+            else:
+                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_op_sample()
+            encoder_input_data = np.expand_dims(encoder_input_data, 0)
+        elif arch == "std_conv_merge" or arch == "deep_conv_merge":
+            if not op:
+                encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_sample()
+            else:
+                encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_op_sample()
+            encoder_input_data = [np.expand_dims(encoder_input_data, 0), np.expand_dims(encoder_input_op, 0)]
+
+        acc += net_eval.test_edit_distance(encoder_input_data, np.expand_dims(decoder_target_data, 0))
+    return acc / num
 
 
 def decode(datum):
@@ -193,12 +199,13 @@ if do_train:
                            save_interval=int(sys.argv[6]), latent_dim=int(sys.argv[7]), arch=sys.argv[8], with_op=(sys.argv[9] == "True"))
 else:
     model_path = sys.argv[1]
-    models = os.listdir(model_path)
+    #models = os.listdir(model_path)
+    models = ["net_2018-10-09_18:44:59.449890_convMergeLSTM_latent_dim_256True.epoch0001"]
     for m in models:
         if not m.startswith("."):
             orig_stdout = sys.stdout
             f = open(model_path + m + '.txt', 'w')
-            sys.stdout = f
+            #sys.stdout = f
             loaded_model = model_path + m
             if '_256' in m:
                 latent_dim = 256

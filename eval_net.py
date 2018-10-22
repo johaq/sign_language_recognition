@@ -13,8 +13,10 @@ class NetEval:
         self.dict = dict
 
         if not mix:
+            self.mix = False
             encoder_inputs = model.input[0]
         else:
+            self.mix = True
             encoder_inputs = [model.input[0], model.input[1]]
         encoder_outputs, state_h_enc, state_c_enc = model.layers[-3].output
         encoder_states = [state_h_enc, state_c_enc]
@@ -40,7 +42,10 @@ class NetEval:
     # generate target given source sequence
     def predict_sequence(self, source, n_steps=168, cardinality=1220):
         # encode
-        state = self.encoder_model.predict(source)
+        if self.mix:
+            state = self.encoder_model.predict([source[0], source[1]])
+        else:
+            state = self.encoder_model.predict(source)
         # start of sequence input
         target_seq = np.array([0.0 for _ in range(cardinality)]).reshape(1, 1, cardinality)
         # collect predictions
@@ -86,6 +91,9 @@ class NetEval:
         return acc_total / len(encoder_input_test)
 
     def test_edit_distance(self, encoder_input_test, decoder_output_test):
+        if self.mix:
+            encoder_input_test_op = encoder_input_test[1]
+            encoder_input_test = encoder_input_test[0]
         acc_total = 0
         target_string = ""
         for i in range(len(encoder_input_test)):
@@ -96,8 +104,13 @@ class NetEval:
                     if self.dict[x] == decoded_word:
                         print(x, end=' ')
                         target_string = target_string + x
-            prediction, prediction_string = self.predict_sequence(np.expand_dims(encoder_input_test[i], 0),
+            if self.mix:
+                prediction, prediction_string = self.predict_sequence([np.expand_dims(encoder_input_test[i], 0),np.expand_dims(encoder_input_test_op[i], 0)],
                                                n_steps=decoder_output_test[i].shape[0])
+            else:
+                prediction, prediction_string = self.predict_sequence(
+                    np.expand_dims(encoder_input_test[i], 0),
+                    n_steps=decoder_output_test[i].shape[0])
             acc = 1 - editdistance.eval(prediction_string, target_string) / np.maximum(len(prediction_string), len(target_string))
             acc_total += acc
         return acc_total / len(encoder_input_test)
