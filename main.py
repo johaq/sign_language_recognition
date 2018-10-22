@@ -1,4 +1,5 @@
 import gen_data
+import gen_data_signum
 import train_net
 import eval_net
 import numpy as np
@@ -34,6 +35,25 @@ def test_data_generation():
     print(d_input_b.shape)
     print("Decoder Output")
     print(d_output_b.shape)
+
+def create_and_save_data_sig(path, filename):
+    data_generator = gen_data_signum.DataGenSIGNUM(
+        data_path='/media/compute/homes/jkummert/SIGNUM/',
+        corpus_path='')
+    dict = data_generator.create_dictionary()
+    np.save(
+        path + '/' + '' + filename + '_' + 'dict.npy',
+        dict)
+    e_input, d_input, d_output = data_generator.read_path()
+    np.save(
+        path + '/' + '' + filename + '_' + 'e_input.npy',
+        e_input)
+    np.save(
+        path + '/' + '' + filename + '_' + 'd_input.npy',
+        d_input)
+    np.save(
+        path + '/' + '' + filename + '_' + 'd_output.npy',
+        d_output)
 
 def create_and_save_data(path, filename):
     data_generator = gen_data.DataGen(
@@ -183,7 +203,8 @@ def get_dumb_model_acc():
     print(acc_total)
 
 # test_data_generation()
-# create_and_save_data_images('/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/data_as_np_array', 'rwth_corpus_images')
+print('########### Creating SIGNUM Data ###########')
+create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
 # get_dumb_model_acc()
 
 # Test pretrained model
@@ -192,16 +213,18 @@ def get_dumb_model_acc():
 #K.utils.plot_model(model, to_file="model_vgg_19_full.png", show_shapes=True)
 
 do_train = False
+do_eval = False
 if do_train:
     print('########### START CONV TRAINING WITH DATA_NAME:%s NUM_EPOCHS:%d LATENT_DIM:%d ###########' % (sys.argv[3], int(sys.argv[5]), int(sys.argv[7])))
     trainer, model = train(model_path=sys.argv[1], data_location=sys.argv[2], data_name=sys.argv[3],
                            batch_size=int(sys.argv[4]), num_epochs=int(sys.argv[5]),
                            save_interval=int(sys.argv[6]), latent_dim=int(sys.argv[7]), arch=sys.argv[8], with_op=(sys.argv[9] == "True"))
-else:
+elif do_eval:
     model_path = sys.argv[1]
     models = os.listdir(model_path)
-    #models = ["net_2018-10-09_18:44:59.449890_convMergeLSTM_latent_dim_256True.epoch0001"]
+    #models = ["net_2018-09-19_13:59:48.482086_stdLSTM_latent_dim_128.epoch5000"]
     for m in models:
+        print(m)
         if not m.startswith("."):
             orig_stdout = sys.stdout
             f = open(model_path + m + '.txt', 'w')
