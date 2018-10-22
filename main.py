@@ -86,33 +86,35 @@ def train(model_path, data_location, data_name, batch_size, num_epochs, save_int
     return net_trainer, model_trained
 
 
-def evaluate(model, dict, latent_dim, encoder_input_data, decoder_output_data, load_model=True, mix=False):
+def evaluate(model, dict, latent_dim, encoder_input_data, decoder_output_data, load_model=True, mix=False, num=250):
     net_eval = eval_net.NetEval(model, dict, load_model, latent_dim, mix=mix)
-    return net_eval.test_edit_distance(encoder_input_data, decoder_output_data)
+    acc = 0
+    for i in range(num):
+        acc += net_eval.test_edit_distance(encoder_input_data, decoder_output_data)
+    acc = acc/num
+    return acc
 
 
 def evaluate_image_model(model, arch, op, latent_dim, num):
     data_generator = gen_data.DataGen(
         data_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/",
         corpus_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus")
-    acc = 0
-    for i in range(num):
-        if arch == "std":
-            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
-        elif arch == "std_conv" or arch == "deep_conv":
-            if not op:
-                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_sample()
-            else:
-                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_op_sample()
-        elif arch == "std_conv_merge" or arch == "deep_conv_merge":
-            if not op:
-                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_mix_sample()
-            else:
-                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_mix_op_sample()
+    data_generator.load_from_file(sys.argv[2], sys.argv[3])
+    if arch == "std":
+        encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
+    elif arch == "std_conv" or arch == "deep_conv" or arch == "vgg_19_retrain_False" or arch == "vgg_19_retrain_True":
+        if not op:
+            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_sample()
+        else:
+            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_op_sample()
+    elif arch == "std_conv_merge" or arch == "deep_conv_merge":
+        if not op:
+            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_mix_sample()
+        else:
+            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_mix_op_sample()
 
-        acc += evaluate(model, data_generator.dict, int(sys.argv[7]),
-                        np.expand_dims(encoder_input_data, 0), np.expand_dims(decoder_target_data, 0), load_model=True, mix=("merge" in arch))
-    acc = acc / num
+    acc = evaluate(model, data_generator.dict, latent_dim,
+                    np.expand_dims(encoder_input_data, 0), np.expand_dims(decoder_target_data, 0), load_model=True, mix=("merge" in arch), num=num)
     return acc
 
 
@@ -183,7 +185,7 @@ def get_dumb_model_acc():
 #model = K.applications.VGG19(weights='imagenet')
 #K.utils.plot_model(model, to_file="model_vgg_19_full.png", show_shapes=True)
 
-do_train = True
+do_train = False
 if do_train:
     print('########### START CONV TRAINING WITH DATA_NAME:%s NUM_EPOCHS:%d LATENT_DIM:%d ###########' % (sys.argv[3], int(sys.argv[5]), int(sys.argv[7])))
     trainer, model = train(model_path=sys.argv[1], data_location=sys.argv[2], data_name=sys.argv[3],
@@ -206,6 +208,10 @@ else:
                 latent_dim = 1024
             elif '_2048' in m:
                 latent_dim = 2048
+            elif '_64' in m:
+                latent_dim = 64
+            elif '_128' in m:
+                latent_dim = 128
             if 'stdLSTM' in m:
                 arch = "std"
             elif 'convLSTM' in m:
@@ -216,13 +222,17 @@ else:
                 arch = "std_conv_merge"
             elif 'deepConvMergeLSTM' in m:
                 arch = "deep_conv_merge"
+            elif 'vgg_19_retrain_False' in m:
+                arch = "vgg_19_retrain_False"
+            elif 'vgg_19_retrain_True' in m:
+                arch = "vgg_19_retrain_True"
             with_op = False
             if 'True' in m:
                 with_op = True
             else:
                 with_op = False
             print('########### EVALUATING MODEL %s WITH ARCH: %s, DIM: %d, OP: %s ###########' % (m,arch,latent_dim,with_op))
-            acc = evaluate_image_model(loaded_model, arch=arch, with_op=with_op, latent_dim=latent_dim, num=250)
+            acc = evaluate_image_model(loaded_model, arch=arch, op=with_op, latent_dim=latent_dim, num=250)
             print('\n########### MODEL ACCURACY: %f ###########' % acc)
 
 

@@ -7,10 +7,11 @@ import keras as K
 import imageio
 from sklearn.decomposition import IncrementalPCA
 import pickle
+import re
 
 
 
-class DataGen:
+class DataGenSIGNUM:
 
     def __init__(self, data_path, corpus_path):
         self.data_path = data_path
@@ -56,8 +57,8 @@ class DataGen:
         x_norm = pose_keypoints_2d_m[1][0] # x position of neck
         y_norm = pose_keypoints_2d_m[1][1] # y position of neck
 
-        x_max = 210 # x dim of image
-        y_max = 260 # y dim of image
+        x_max = 578 # x dim of image
+        y_max = 776 # y dim of image
 
         # normalize around neck point, confidence already normalized
         hand_left_keypoints_2d_m_norm = [
@@ -116,38 +117,44 @@ class DataGen:
                 return one_hot_encoded_input, one_hot_encoded_output
 
     def read_label(self, name):
-        tree = ET.parse(self.corpus_path)
-        root = tree.getroot()
-        for recording in root.findall('recording'):
-            if recording.get('name') == name:
-                seg = recording.find('segment')
-                orth = seg.find('orth').text
-                orth = orth.split()
+        with open(name, 'r') as annoFile:
+            data = annoFile.read()
+            dataSplit = re.split('\n|\t', data)
+            try:
+                anno_txt = dataSplit[dataSplit.index('annot_deu') + 1]
+                if len(anno_txt.split('|')) > 1:
+                    anno_txt = anno_txt.split('|')[0]
+                orth = anno_txt.split()
                 # integer encoding
                 int_encoded_input = [self.dict[w] for w in [''] + orth[:-1]]
                 int_encoded_output = [self.dict[w] for w in orth]
                 # one-hot encoding
-                one_hot_encoded_input = K.utils.to_categorical(int_encoded_input, num_classes=1220)
-                one_hot_encoded_output = K.utils.to_categorical(int_encoded_output, num_classes=1220)
+                one_hot_encoded_input = K.utils.to_categorical(int_encoded_input, num_classes=450) #TODO: Correct number of classes
+                one_hot_encoded_output = K.utils.to_categorical(int_encoded_output, num_classes=450)
                 # offset label by one timestep for prediction
                 return one_hot_encoded_input, one_hot_encoded_output
+            except:
+                print("ERROR: Could not create feature from image")
+                pass
 
     def read_path(self):
-        recordings = os.listdir(self.data_path)
+        parts = os.listdir(self.data_path)
         encoder_input = []
         decoder_input = []
         decoder_output = []
         c = 0
-        for r in recordings:
-            if not r.startswith("."):
-                recording = self.read_recording(self.data_path + "/" + r)
-                encoder_input.append(recording)
-                new_decoder_input, new_decoder_output = self.read_label(r)
-                decoder_input.append(new_decoder_input)
-                decoder_output.append(new_decoder_output)
-                c += 1
-                if c % 100 == 0:
-                    print(str(c) + "/" + str(len(recordings)))
+        for p in parts:
+            recordings = os.listdir(self.data_path + "/" + p)
+            for r in recordings:
+                if not r.startswith(".") and not r.endswith("txt"):
+                    recording = self.read_recording(self.data_path + "/" + p + "/" + r)
+                    encoder_input.append(recording)
+                    new_decoder_input, new_decoder_output = self.read_label(self.data_path + "/" + p + "/" + r + ".txt")
+                    decoder_input.append(new_decoder_input)
+                    decoder_output.append(new_decoder_output)
+                    c += 1
+                    if c % 100 == 0:
+                        print(str(c) + "/" + str(len(recordings)))
 
         self.encoder_input = encoder_input
         self.decoder_input = decoder_input
@@ -179,74 +186,86 @@ class DataGen:
         return self.encoder_input[index], self.decoder_input[index], self.decoder_output[index]
 
     def get_random_image_sample(self):
-        recordings = os.listdir(self.data_path)
+        parts = os.listdir(self.data_path)
+        index_parts = random.randint(0, len(parts) - 1)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
         index = random.randint(0, len(recordings) - 1)
 
-        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
-        decoder_input, decoder_output = self.read_label(recordings[index])
+        encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
         return encoder_input, decoder_input, decoder_output
 
     def get_random_image_op_sample(self):
-        recordings = os.listdir(self.data_path)
+        parts = os.listdir(self.data_path)
+        index_parts = random.randint(0, len(parts) - 1)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
         index = random.randint(0, len(recordings) - 1)
 
-        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
-        decoder_input, decoder_output = self.read_label(recordings[index])
+        encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + "/openpose/")
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
         return encoder_input, decoder_input, decoder_output
 
     def get_random_mix_sample(self):
-        recordings = os.listdir(self.data_path)
+        parts = os.listdir(self.data_path)
+        index_parts = random.randint(0, len(parts) - 1)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
         index = random.randint(0, len(recordings) - 1)
 
-        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
-        decoder_input, decoder_output = self.read_label(recordings[index])
-        encoder_input_op = self.read_recording(self.data_path + "/" + recordings[index])
+        encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
+        encoder_input_op = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def get_random_mix_op_sample(self):
-        recordings = os.listdir(self.data_path)
+        parts = os.listdir(self.data_path)
+        index_parts = random.randint(0, len(parts) - 1)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
         index = random.randint(0, len(recordings) - 1)
 
-        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
-        decoder_input, decoder_output = self.read_label(recordings[index])
-        encoder_input_op = self.read_recording(self.data_path + "/" + recordings[index])
+        encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + "/openpose/")
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
+        encoder_input_op = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def get_sample(self, index):
         return self.encoder_input[index], self.decoder_input[index], self.decoder_output[index]
 
-    def get_image_sample(self, index):
-        recordings = os.listdir(self.data_path)
-        print(recordings[index])
+    def get_image_sample(self, index_parts, index):
+        parts = os.listdir(self.data_path)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        print(parts[index_parts] + "/" + recordings[index])
 
-        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
-        decoder_input, decoder_output = self.read_label(recordings[index])
+        encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
         return encoder_input, decoder_input, decoder_output
 
-    def get_image_op_sample(self, index):
-        recordings = os.listdir(self.data_path)
-        print(recordings[index])
+    def get_image_op_sample(self, index_parts, index):
+        parts = os.listdir(self.data_path)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        print(parts[index_parts] + "/" + recordings[index])
 
-        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
-        decoder_input, decoder_output = self.read_label(recordings[index])
+        encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + "/openpose/")
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
         return encoder_input, decoder_input, decoder_output
 
-    def get_mix_sample(self, index):
-        recordings = os.listdir(self.data_path)
-        print(recordings[index])
+    def get_mix_sample(self, index_parts, index):
+        parts = os.listdir(self.data_path)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        print(parts[index_parts] + "/" + recordings[index])
 
-        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index])
-        decoder_input, decoder_output = self.read_label(recordings[index])
-        encoder_input_op = self.read_recording(self.data_path + "/" + recordings[index])
+        encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
+        encoder_input_op = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
-    def get_mix_op_sample(self, index):
-        recordings = os.listdir(self.data_path)
-        print(recordings[index])
+    def get_mix_op_sample(self, index_parts, index):
+        parts = os.listdir(self.data_path)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        print(parts[index_parts] + "/" + recordings[index])
 
-        encoder_input = self.read_recording_image(self.data_path + "/" + recordings[index] + "/openpose/")
-        decoder_input, decoder_output = self.read_label(recordings[index])
-        encoder_input_op = self.read_recording(self.data_path + "/" + recordings[index])
+        encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + "/openpose/")
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
+        encoder_input_op = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
     def load_from_file(self, path, filename):
@@ -269,19 +288,28 @@ class DataGen:
         self.dict = np.load(path + '/' + '' + filename + '_' + 'dict.npy').item()
 
     def create_dictionary(self):
-        tree = ET.parse(self.corpus_path)
-        root = tree.getroot()
+        parts = os.listdir(self.data_path)
         dict = {'': 0}
         class_n = 1
-        for recording in root.findall('recording'):
-            seg = recording.find('segment')
-            orth = seg.find('orth').text
-            for w in orth.split():
-                if w in dict:
-                    pass
-                else:
-                    dict[w] = class_n
-                    class_n += 1
+        for p in parts:
+            recordings = os.listdir(self.data_path + "/" + p)
+            for annot in recordings:
+                if not annot.startswith(".") and annot.endswith("txt"):
+                    with open(self.data_path + "/" + p + "/" + annot, 'r') as annoFile:
+                        data = annoFile.read()
+                        dataSplit = re.split('\n|\t', data)
+                        try:
+                            anno_txt = dataSplit[dataSplit.index('annot_deu')+1]
+                            if len(anno_txt.split('|')) > 1:
+                                anno_txt = anno_txt.split('|')[0]
+                            for w in anno_txt.split():
+                                if w in dict:
+                                    pass
+                                else:
+                                    dict[w] = class_n
+                                    class_n += 1
+                        except ValueError or IndexError:
+                            print("No german annotation in txt file. skipping")
         self.dict = dict
         return dict
 
@@ -322,7 +350,7 @@ class DataGen:
         files = os.listdir(name + "/")
         first = True
         for f in files:
-            if f.endswith(".png"):
+            if f.endswith(".jpg"):
                 data = self.read_image(name + "/" + f)
                 try:
                     if first:
@@ -338,21 +366,23 @@ class DataGen:
         return feature_tensor
 
     def read_path_images(self):
-        recordings = os.listdir(self.data_path)
+        parts = os.listdir(self.data_path)
         encoder_input = []
         decoder_input = []
         decoder_output = []
         c = 0
-        for r in recordings:
-            if not r.startswith("."):
-                recording = self.read_recording_image(self.data_path + "/" + r)
-                encoder_input.append(recording)
-                new_decoder_input, new_decoder_output = self.read_label(r)
-                decoder_input.append(new_decoder_input)
-                decoder_output.append(new_decoder_output)
-                c += 1
-                if c % 100 == 0:
-                    print(str(c) + "/" + str(len(recordings)))
+        for p in parts:
+            recordings = os.listdir(self.data_path + "/" + p)
+            for r in recordings:
+                if not r.startswith(".") and not r.endswith("txt"):
+                    recording = self.read_recording_image(self.data_path + "/" + p + "/" + r)
+                    encoder_input.append(recording)
+                    new_decoder_input, new_decoder_output = self.read_label(r)
+                    decoder_input.append(new_decoder_input)
+                    decoder_output.append(new_decoder_output)
+                    c += 1
+                    if c % 100 == 0:
+                        print(str(c) + "/" + str(len(recordings)))
 
         self.encoder_input = encoder_input
         self.decoder_input = decoder_input
@@ -411,32 +441,8 @@ class DataGen:
         print(transformer.get_covariance())
 
     def augment_data(self, image_data, num):
-        p_1 = [0.859969, 0.911842, 1]
-        p_2 = [-1.30105, 0.130358, 1]
-        p_3 = [0.601855, -1.6643, 1]
-        lambda_1 = 0.261116
-        lambda_2 = 0.00731817
-        lambda_3 = 0.000235926
-
-        augmented_batch = np.expand_dims(image_data, 0)
-
-        for i in range(num):
-            alpha_1 = np.random.normal(0, 0.1)
-            alpha_2 = np.random.normal(0, 0.1)
-            alpha_3 = np.random.normal(0, 0.1)
-
-            I_r = p_1[0] * alpha_1 * lambda_1 + p_2[0] * alpha_2 * lambda_2 + p_3[0] * alpha_3 * lambda_3
-            I_g = p_1[1] * alpha_1 * lambda_1 + p_2[1] * alpha_2 * lambda_2 + p_3[1] * alpha_3 * lambda_3
-            I_b = p_1[2] * alpha_1 * lambda_1 + p_2[2] * alpha_2 * lambda_2 + p_3[2] * alpha_3 * lambda_3
-
-            im_aug = np.copy(image_data)
-            im_aug[:, :, 0] = image_data[:, :, 0] + I_r
-            im_aug[:, :, 1] = image_data[:, :, 1] + I_g
-            im_aug[:, :, 2] = image_data[:, :, 2] + I_b
-
-            augmented_batch = np.concatenate((augmented_batch, np.expand_dims(im_aug, 0)))
-
-        return augmented_batch
+        #TODO: Do augment
+        return image_data
 
 #g_data = read_json("/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/01April_2010_Thursday_heute_default-0/openpose/01April_2010_Thursday_heute.avi_fn044294-0_keypoints.json")
 #g_feature = json_to_train_data(g_data)

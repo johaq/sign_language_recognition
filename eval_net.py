@@ -9,6 +9,7 @@ class NetEval:
     def __init__(self, model, dict, load_model, latent_dim, mix=False):
         if load_model:
             model = K.models.load_model(model)
+            K.utils.plot_model(model, to_file="eval_net.png", show_shapes=True)
         self.dict = dict
 
         if not mix:

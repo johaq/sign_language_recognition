@@ -28,7 +28,7 @@ class NetTrain:
             data_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-corpus-images/",
             corpus_path="/home/johannes/Documents/master_data/jkummert_master_thesis/rwth/rwth-phoenix-full-20120323.corpus")
         self.data_generator.load_from_file(data_location, data_name)
-        self.data_generator.compute_pca_of_image_set()
+        #self.data_generator.compute_pca_of_image_set()
         #self.data_generator.load_from_file(data_location, data_name)
         #self.data_generator.split_testset(0.1)
         self.path = model_path
@@ -186,10 +186,27 @@ class NetTrain:
             if index >= len(self.data_generator.encoder_input):
                 index = 0
 
-            encoder_input_data_im = np.expand_dims(encoder_input_data_im, 0)
-            decoder_input_data_im = np.expand_dims(decoder_input_data_im, 0)
-            decoder_target_data_im = np.expand_dims(decoder_target_data_im, 0)
-            encoder_input_data_op = np.expand_dims(encoder_input_data_op, 0)
+            if batch_size == 1:
+                encoder_input_data_im = np.expand_dims(encoder_input_data_im, 0)
+                decoder_input_data_im = np.expand_dims(decoder_input_data_im, 0)
+                decoder_target_data_im = np.expand_dims(decoder_target_data_im, 0)
+                encoder_input_data_op = np.expand_dims(encoder_input_data_op, 0)
+            else:
+                encoder_input_data_im = self.data_generator.augment_data(encoder_input_data_im, batch_size)
+                decoder_input_data_im = np.expand_dims(decoder_input_data_im, 0)
+                decoder_input_data_im_batch = np.concatenate((decoder_input_data_im, decoder_input_data_im))
+                decoder_target_data_im = np.expand_dims(decoder_target_data_im, 0)
+                decoder_target_data_im_batch = np.concatenate((decoder_target_data_im, decoder_target_data_im))
+                encoder_input_data_op = np.expand_dims(encoder_input_data_op, 0)
+                encoder_input_data_op_batch = np.concatenate((encoder_input_data_op, encoder_input_data_op))
+
+                for i in range(batch_size-1):
+                    decoder_input_data_im_batch = np.concatenate((decoder_input_data_im_batch, decoder_input_data_im))
+                    decoder_target_data_im_batch = np.concatenate((decoder_target_data_im_batch, decoder_target_data_im))
+                    encoder_input_data_op_batch = np.concatenate((encoder_input_data_op_batch, encoder_input_data_op))
+                decoder_input_data_im = decoder_input_data_im_batch
+                decoder_target_data_im = decoder_target_data_im_batch
+                encoder_input_data_op = encoder_input_data_op_batch
 
             callbacks = [best_model]
             if not epoch % save_interval:
