@@ -199,13 +199,13 @@ if do_train:
                            save_interval=int(sys.argv[6]), latent_dim=int(sys.argv[7]), arch=sys.argv[8], with_op=(sys.argv[9] == "True"))
 else:
     model_path = sys.argv[1]
-    #models = os.listdir(model_path)
-    models = ["net_2018-10-09_18:44:59.449890_convMergeLSTM_latent_dim_256True.epoch0001"]
+    models = os.listdir(model_path)
+    #models = ["net_2018-10-09_18:44:59.449890_convMergeLSTM_latent_dim_256True.epoch0001"]
     for m in models:
         if not m.startswith("."):
             orig_stdout = sys.stdout
             f = open(model_path + m + '.txt', 'w')
-            #sys.stdout = f
+            sys.stdout = f
             loaded_model = model_path + m
             if '_256' in m:
                 latent_dim = 256
