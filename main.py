@@ -224,6 +224,8 @@ elif do_eval:
     models = os.listdir(model_path)
     #models = ["net_2018-09-19_13:59:48.482086_stdLSTM_latent_dim_128.epoch5000"]
     for m in models:
+        if m.endswith('.txt'):
+            continue
         print(m)
         if not m.startswith("."):
             if os.path.isfile(model_path + m + '.txt'):
