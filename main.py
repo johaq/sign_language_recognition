@@ -139,12 +139,18 @@ def evaluate_image_model(model, arch, op, latent_dim, num):
                     encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_sample()
                 else:
                     encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_op_sample()
+                if not is_same_input_size(encoder_input_data, encoder_input_op):
+                    continue
                 encoder_input_data = [np.expand_dims(encoder_input_data, 0), np.expand_dims(encoder_input_op, 0)]
 
             acc += net_eval.test_edit_distance(encoder_input_data, np.expand_dims(decoder_target_data, 0))
         except ValueError or OSError:
             continue
     return acc / num
+
+
+def is_same_input_size(in_im, in_op):
+    return in_im.shape[0] == in_op.shape[0]
 
 
 def decode(datum):
