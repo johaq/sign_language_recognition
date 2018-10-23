@@ -143,9 +143,10 @@ class DataGenSIGNUM:
         encoder_input = []
         decoder_input = []
         decoder_output = []
-        c = 0
+        cp = 0
         for p in parts:
             recordings = os.listdir(self.data_path + "/" + p)
+            cr = 0
             for r in recordings:
                 if not r.startswith(".") and not r.endswith("txt"):
                     recording = self.read_recording(self.data_path + "/" + p + "/" + r)
@@ -153,9 +154,11 @@ class DataGenSIGNUM:
                     new_decoder_input, new_decoder_output = self.read_label(self.data_path + "/" + p + "/" + r + ".txt")
                     decoder_input.append(new_decoder_input)
                     decoder_output.append(new_decoder_output)
-                    c += 1
-                    if c % 100 == 0:
-                        print(str(c) + "/" + str(len(recordings)))
+                    cr += 1
+                    if cr % 100 == 0:
+                        print(r + ": " + str(cr) + "/" + str(len(recordings)))
+            cp += 1
+            print(p + ": " + str(cp) + "/" + str(len(parts)))
 
         self.encoder_input = encoder_input
         self.decoder_input = decoder_input
