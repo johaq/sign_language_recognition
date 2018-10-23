@@ -7,7 +7,7 @@ import sys
 import editdistance
 import os
 import vgg_19_model
-from PIL import ImageFile
+import PIL
 import pickle
 import keras as K
 import cmu_model
@@ -124,23 +124,26 @@ def evaluate_image_model(model, arch, op, latent_dim, num):
 
     acc = 0
     for i in range(num):
-        if arch == "std":
-            encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
-            encoder_input_data = np.expand_dims(encoder_input_data, 0)
-        elif arch == "std_conv" or arch == "deep_conv" or arch == "vgg_19_retrain_False" or arch == "vgg_19_retrain_True":
-            if not op:
-                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_sample()
-            else:
-                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_op_sample()
-            encoder_input_data = np.expand_dims(encoder_input_data, 0)
-        elif arch == "std_conv_merge" or arch == "deep_conv_merge":
-            if not op:
-                encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_sample()
-            else:
-                encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_op_sample()
-            encoder_input_data = [np.expand_dims(encoder_input_data, 0), np.expand_dims(encoder_input_op, 0)]
+        try:
+            if arch == "std":
+                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
+                encoder_input_data = np.expand_dims(encoder_input_data, 0)
+            elif arch == "std_conv" or arch == "deep_conv" or arch == "vgg_19_retrain_False" or arch == "vgg_19_retrain_True":
+                if not op:
+                    encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_sample()
+                else:
+                    encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_op_sample()
+                encoder_input_data = np.expand_dims(encoder_input_data, 0)
+            elif arch == "std_conv_merge" or arch == "deep_conv_merge":
+                if not op:
+                    encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_sample()
+                else:
+                    encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_op_sample()
+                encoder_input_data = [np.expand_dims(encoder_input_data, 0), np.expand_dims(encoder_input_op, 0)]
 
-        acc += net_eval.test_edit_distance(encoder_input_data, np.expand_dims(decoder_target_data, 0))
+            acc += net_eval.test_edit_distance(encoder_input_data, np.expand_dims(decoder_target_data, 0))
+        except ValueError or OSError:
+            continue
     return acc / num
 
 
