@@ -117,25 +117,26 @@ class DataGenSIGNUM:
                 return one_hot_encoded_input, one_hot_encoded_output
 
     def read_label(self, name):
+        print(name)
         with open(name, 'r') as annoFile:
             data = annoFile.read()
             dataSplit = re.split('\n|\t', data)
-            try:
-                anno_txt = dataSplit[dataSplit.index('annot_deu') + 1]
-                if len(anno_txt.split('|')) > 1:
-                    anno_txt = anno_txt.split('|')[0]
-                orth = anno_txt.split()
-                # integer encoding
-                int_encoded_input = [self.dict[w] for w in [''] + orth[:-1]]
-                int_encoded_output = [self.dict[w] for w in orth]
-                # one-hot encoding
-                one_hot_encoded_input = K.utils.to_categorical(int_encoded_input, num_classes=450) #TODO: Correct number of classes
-                one_hot_encoded_output = K.utils.to_categorical(int_encoded_output, num_classes=450)
-                # offset label by one timestep for prediction
-                return one_hot_encoded_input, one_hot_encoded_output
-            except:
-                print("ERROR: Could not create feature from image")
-                pass
+            #try:
+            anno_txt = dataSplit[dataSplit.index('annot_deu') + 1]
+            if len(anno_txt.split('|')) > 1:
+                anno_txt = anno_txt.split('|')[0]
+            orth = anno_txt.split()
+            # integer encoding
+            int_encoded_input = [self.dict[w] for w in [''] + orth[:-1]]
+            int_encoded_output = [self.dict[w] for w in orth]
+            # one-hot encoding
+            one_hot_encoded_input = K.utils.to_categorical(int_encoded_input, num_classes=450) #TODO: Correct number of classes
+            one_hot_encoded_output = K.utils.to_categorical(int_encoded_output, num_classes=450)
+            # offset label by one timestep for prediction
+            return one_hot_encoded_input, one_hot_encoded_output
+            #except:
+            #    print("ERROR: Could not create feature from image")
+            #    pass
 
     def read_path(self):
         parts = os.listdir(self.data_path)

@@ -203,7 +203,7 @@ def get_dumb_model_acc():
     print(acc_total)
 
 # test_data_generation()
-print('########### Creating SIGNUM Data ###########')
+#print('########### Creating SIGNUM Data ###########')
 create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
 # get_dumb_model_acc()
 
@@ -226,6 +226,8 @@ elif do_eval:
     for m in models:
         print(m)
         if not m.startswith("."):
+            if os.path.isfile(model_path + m + '.txt'):
+                continue
             orig_stdout = sys.stdout
             f = open(model_path + m + '.txt', 'w')
             sys.stdout = f
