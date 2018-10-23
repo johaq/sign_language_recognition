@@ -213,7 +213,7 @@ def get_dumb_model_acc():
 
 # test_data_generation()
 #print('########### Creating SIGNUM Data ###########')
-#create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
+create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
 # get_dumb_model_acc()
 
 # Test pretrained model
@@ -222,7 +222,7 @@ def get_dumb_model_acc():
 #K.utils.plot_model(model, to_file="model_vgg_19_full.png", show_shapes=True)
 
 do_train = False
-do_eval = True
+do_eval = False
 if do_train:
     print('########### START CONV TRAINING WITH DATA_NAME:%s NUM_EPOCHS:%d LATENT_DIM:%d ###########' % (sys.argv[3], int(sys.argv[5]), int(sys.argv[7])))
     trainer, model = train(model_path=sys.argv[1], data_location=sys.argv[2], data_name=sys.argv[3],

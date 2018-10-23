@@ -159,10 +159,19 @@ class DataGenSIGNUM:
                         print(r + ": " + str(cr) + "/" + str(len(recordings)))
             cp += 1
             print(p + ": " + str(cp) + "/" + str(len(parts)))
+            np.save(
+                '/media/compute/homes/jkummert/data' + '/' + '' + 'signum_word' + '_' + p + '_' + 'e_input.npy',
+                encoder_input)
+            np.save(
+                '/media/compute/homes/jkummert/data' + '/' + '' + 'signum_word' + '_' + p + '_' + 'd_input.npy',
+                decoder_input)
+            np.save(
+                '/media/compute/homes/jkummert/data' + '/' + '' + 'signum_word' + '_' + p + '_' + 'd_output.npy',
+                decoder_output)
+            encoder_input = []
+            decoder_input = []
+            decoder_output = []
 
-        self.encoder_input = encoder_input
-        self.decoder_input = decoder_input
-        self.decoder_output = decoder_output
         return encoder_input, decoder_input, decoder_output
 
     def create_batch(self, batch_size):
