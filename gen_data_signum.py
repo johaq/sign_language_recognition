@@ -130,8 +130,8 @@ class DataGenSIGNUM:
             int_encoded_input = [self.dict[w] for w in [''] + orth[:-1]]
             int_encoded_output = [self.dict[w] for w in orth]
             # one-hot encoding
-            one_hot_encoded_input = K.utils.to_categorical(int_encoded_input, num_classes=450) #TODO: Correct number of classes
-            one_hot_encoded_output = K.utils.to_categorical(int_encoded_output, num_classes=450)
+            one_hot_encoded_input = K.utils.to_categorical(int_encoded_input, num_classes=765)
+            one_hot_encoded_output = K.utils.to_categorical(int_encoded_output, num_classes=765)
             # offset label by one timestep for prediction
             return one_hot_encoded_input, one_hot_encoded_output
             #except:
