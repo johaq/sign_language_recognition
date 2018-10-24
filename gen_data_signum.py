@@ -82,6 +82,7 @@ class DataGenSIGNUM:
     def read_recording(self, name):
         files = os.listdir(name + "/openpose/")
         first = True
+        feature_tensor = []
         for f in files:
             if f.endswith(".json"):
                 data = self.read_json(name + "/openpose/" + f)
@@ -117,7 +118,6 @@ class DataGenSIGNUM:
                 return one_hot_encoded_input, one_hot_encoded_output
 
     def read_label(self, name):
-        print(name)
         with open(name, 'r') as annoFile:
             data = annoFile.read()
             dataSplit = re.split('\n|\t', data)
@@ -148,6 +148,7 @@ class DataGenSIGNUM:
             recordings = os.listdir(self.data_path + "/" + p)
             cr = 0
             for r in recordings:
+                print(r)
                 if not r.startswith(".") and not r.endswith("txt"):
                     recording = self.read_recording(self.data_path + "/" + p + "/" + r)
                     encoder_input.append(recording)
