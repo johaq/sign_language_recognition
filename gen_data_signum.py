@@ -98,7 +98,7 @@ class DataGenSIGNUM:
                     print("ERROR: Could not create feature from json")
                     pass
         # feature_tensor normalized
-        if not feature_tensor:
+        if len(feature_tensor) == 0:
             raise Exception
         return feature_tensor
 
