@@ -57,8 +57,8 @@ class DataGenSIGNUM:
         x_norm = pose_keypoints_2d_m[1][0] # x position of neck
         y_norm = pose_keypoints_2d_m[1][1] # y position of neck
 
-        x_max = 578 # x dim of image
-        y_max = 776 # y dim of image
+        x_max = 776 # x dim of image
+        y_max = 578 # y dim of image
 
         # normalize around neck point, confidence already normalized
         hand_left_keypoints_2d_m_norm = [

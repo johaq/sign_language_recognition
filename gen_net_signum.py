@@ -34,7 +34,7 @@ class NetGen:
 
     def get_std_conv_net(self, latent_dim=1024) -> K.Sequential:
         image_input = K.layers.Input(shape=(
-                None, 578, 776, 3))
+                None, 776, 578, 3))
 
         image_conv = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(10, 10)))
         image_conv_out = image_conv(image_input)
@@ -65,7 +65,7 @@ class NetGen:
 
     def get_deep_conv_net(self, latent_dim=1024) -> K.Sequential:
         image_input = K.layers.Input(shape=(
-                None, 578, 776, 3))
+                None, 776, 578, 3))
 
         image_conv_1 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(5, 5)))
         image_conv_out_1 = image_conv_1(image_input)
@@ -114,7 +114,7 @@ class NetGen:
 
     def get_deep_conv_net_google(self, latent_dim=1024) -> K.Sequential:
         image_input = K.layers.Input(shape=(
-                None, 578, 776, 3))
+                None, 776, 578, 3))
 
         image_conv_1 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(3, 3)))
         image_conv_out_1 = image_conv_1(image_input)
@@ -163,7 +163,7 @@ class NetGen:
 
     def get_std_conv_merge_net(self, latent_dim=1024) -> K.Sequential:
         image_input = K.layers.Input(shape=(
-                None, 578, 776, 3))
+                None, 776, 578, 3))
 
         feature_input = K.layers.Input(shape=(
             None, 390))
@@ -200,7 +200,7 @@ class NetGen:
 
     def get_deep_conv_merge_net(self, latent_dim=1024) -> K.Sequential:
         image_input = K.layers.Input(shape=(
-                None, 578, 776, 3))
+                None, 776, 578, 3))
 
         feature_input = K.layers.Input(shape=(
             None, 390))
@@ -257,7 +257,7 @@ class NetGen:
         model_vgg = K.applications.VGG19(weights='imagenet', include_top=False)
 
         image_input = K.layers.Input(shape=(
-                None, 578, 776, 3))
+                None, 776, 578, 3))
 
         image_feat = K.layers.TimeDistributed(model_vgg, trainable=trainable)
         image_feat_input = image_feat(image_input)
