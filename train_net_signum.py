@@ -60,6 +60,7 @@ class NetTrain:
                                                  verbose=1)
 
         indexing = self.get_index_list()
+        shuffle(indexing)
         index = 0
 
         for epoch in range(initial, end):
@@ -104,6 +105,7 @@ class NetTrain:
                                                  verbose=1)
 
         indexing = self.get_index_list()
+        shuffle(indexing)
         index = 0
 
         for epoch in range(initial, end):
@@ -170,6 +172,7 @@ class NetTrain:
                                                  verbose=1)
 
         indexing = self.get_index_list()
+        shuffle(indexing)
         index = 0
 
         for epoch in range(initial, end):

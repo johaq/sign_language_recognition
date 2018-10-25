@@ -197,12 +197,12 @@ class DataGenSIGNUM:
 
     def get_rec_length(self, index_parts):
         parts = os.listdir(self.data_path)
-        return len(os.listdir(self.data_path + "/" + parts[index_parts]))
+        return len([i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')])
 
     def get_random_sample(self):
         parts = os.listdir(self.data_path)
         index_parts = random.randint(0, len(parts) - 1)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         index = random.randint(0, len(recordings) - 1)
 
         decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
@@ -212,7 +212,7 @@ class DataGenSIGNUM:
     def get_random_image_sample(self):
         parts = os.listdir(self.data_path)
         index_parts = random.randint(0, len(parts) - 1)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         index = random.randint(0, len(recordings) - 1)
 
         encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
@@ -222,7 +222,7 @@ class DataGenSIGNUM:
     def get_random_image_op_sample(self):
         parts = os.listdir(self.data_path)
         index_parts = random.randint(0, len(parts) - 1)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         index = random.randint(0, len(recordings) - 1)
 
         encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + "/openpose/")
@@ -232,7 +232,7 @@ class DataGenSIGNUM:
     def get_random_mix_sample(self):
         parts = os.listdir(self.data_path)
         index_parts = random.randint(0, len(parts) - 1)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         index = random.randint(0, len(recordings) - 1)
 
         encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
@@ -243,7 +243,7 @@ class DataGenSIGNUM:
     def get_random_mix_op_sample(self):
         parts = os.listdir(self.data_path)
         index_parts = random.randint(0, len(parts) - 1)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         index = random.randint(0, len(recordings) - 1)
 
         encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + "/openpose/")
@@ -253,7 +253,7 @@ class DataGenSIGNUM:
 
     def get_sample(self, index_parts, index):
         parts = os.listdir(self.data_path)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         print(parts[index_parts] + "/" + recordings[index])
 
         decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
@@ -262,7 +262,7 @@ class DataGenSIGNUM:
 
     def get_image_sample(self, index_parts, index):
         parts = os.listdir(self.data_path)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         print(parts[index_parts] + "/" + recordings[index])
 
         encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
@@ -271,7 +271,7 @@ class DataGenSIGNUM:
 
     def get_image_op_sample(self, index_parts, index):
         parts = os.listdir(self.data_path)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         print(parts[index_parts] + "/" + recordings[index])
 
         encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + "/openpose/")
@@ -280,7 +280,7 @@ class DataGenSIGNUM:
 
     def get_mix_sample(self, index_parts, index):
         parts = os.listdir(self.data_path)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         print(parts[index_parts] + "/" + recordings[index])
 
         encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
@@ -290,7 +290,7 @@ class DataGenSIGNUM:
 
     def get_mix_op_sample(self, index_parts, index):
         parts = os.listdir(self.data_path)
-        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        recordings = [i for i in os.listdir(self.data_path + "/" + parts[index_parts]) if not i.endswith('.txt')]
         print(parts[index_parts] + "/" + recordings[index])
 
         encoder_input = self.read_recording_image(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + "/openpose/")
