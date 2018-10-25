@@ -197,7 +197,7 @@ class DataGenSIGNUM:
 
     def get_rec_length(self, index_parts):
         parts = os.listdir(self.data_path)
-        len(os.listdir(self.data_path + "/" + parts[index_parts]))
+        return len(os.listdir(self.data_path + "/" + parts[index_parts]))
 
     def get_random_sample(self):
         parts = os.listdir(self.data_path)
