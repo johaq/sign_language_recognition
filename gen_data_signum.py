@@ -98,6 +98,8 @@ class DataGenSIGNUM:
                     print("ERROR: Could not create feature from json")
                     pass
         # feature_tensor normalized
+        if not feature_tensor:
+            raise Exception
         return feature_tensor
 
     def read_label_char(self, name):

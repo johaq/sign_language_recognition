@@ -65,7 +65,13 @@ class NetTrain:
 
         for epoch in range(initial, end):
 
-            encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_sample(indexing[index][0], indexing[index][1])
+            try:
+                encoder_input_data, decoder_input_data, decoder_target_data = self.data_generator.get_sample(indexing[index][0], indexing[index][1])
+            except:
+                index += 1
+                print("skipping")
+                continue
+
             index += 1
             if index >= len(indexing):
                 index = 0
