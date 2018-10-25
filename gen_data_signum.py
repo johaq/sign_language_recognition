@@ -195,9 +195,19 @@ class DataGenSIGNUM:
 
         return batch_data_en_arr, batch_de_in_arr, batch_de_out_arr
 
+    def get_rec_length(self, index_parts):
+        parts = os.listdir(self.data_path)
+        len(os.listdir(self.data_path + "/" + parts[index_parts]))
+
     def get_random_sample(self):
-        index = random.randint(0, len(self.encoder_input) - 1)
-        return self.encoder_input[index], self.decoder_input[index], self.decoder_output[index]
+        parts = os.listdir(self.data_path)
+        index_parts = random.randint(0, len(parts) - 1)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        index = random.randint(0, len(recordings) - 1)
+
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
+        encoder_input = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
+        return encoder_input, decoder_input, decoder_output
 
     def get_random_image_sample(self):
         parts = os.listdir(self.data_path)
@@ -241,8 +251,14 @@ class DataGenSIGNUM:
         encoder_input_op = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
         return encoder_input, decoder_input, decoder_output, encoder_input_op
 
-    def get_sample(self, index):
-        return self.encoder_input[index], self.decoder_input[index], self.decoder_output[index]
+    def get_sample(self, index_parts, index):
+        parts = os.listdir(self.data_path)
+        recordings = os.listdir(self.data_path + "/" + parts[index_parts])
+        print(parts[index_parts] + "/" + recordings[index])
+
+        decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
+        encoder_input = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
+        return encoder_input, decoder_input, decoder_output
 
     def get_image_sample(self, index_parts, index):
         parts = os.listdir(self.data_path)

@@ -1,6 +1,7 @@
 import gen_data
 import gen_data_signum
 import train_net
+import train_net_signum
 import eval_net
 import numpy as np
 import sys
@@ -104,6 +105,18 @@ def train(model_path, data_location, data_name, batch_size, num_epochs, save_int
     elif arch == "std_conv_merge" or arch == "deep_conv_merge":
         model_trained = net_trainer.train_model_mix(batch_size=batch_size, end=num_epochs, save_interval=save_interval, with_op=with_op)
     return net_trainer, model_trained
+
+
+def train_sig(model_path, data_location, data_name, batch_size, num_epochs, save_interval, latent_dim, arch="std", with_op=False):
+    net_trainer = train_net_signum.NetTrain(model_path, data_location, data_name, latent_dim, arch)
+    if arch == "std" :
+        model_trained = net_trainer.train_model(batch_size=batch_size, end=num_epochs, save_interval=save_interval)
+    elif arch == "std_conv" or arch == "deep_conv" or arch == "vgg_19_true" or arch == "vgg_19_false":
+        model_trained = net_trainer.train_model_images(batch_size=batch_size, end=num_epochs, save_interval=save_interval, with_op=with_op)
+    elif arch == "std_conv_merge" or arch == "deep_conv_merge":
+        model_trained = net_trainer.train_model_mix(batch_size=batch_size, end=num_epochs, save_interval=save_interval, with_op=with_op)
+    return net_trainer, model_trained
+
 
 
 def evaluate(model, dict, latent_dim, encoder_input_data, decoder_output_data, load_model=True, mix=False, num=250):
@@ -213,7 +226,7 @@ def get_dumb_model_acc():
 
 # test_data_generation()
 #print('########### Creating SIGNUM Data ###########')
-create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
+#create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
 # get_dumb_model_acc()
 
 # Test pretrained model
@@ -221,11 +234,11 @@ create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
 #model = K.applications.VGG19(weights='imagenet')
 #K.utils.plot_model(model, to_file="model_vgg_19_full.png", show_shapes=True)
 
-do_train = False
+do_train = True
 do_eval = False
 if do_train:
     print('########### START CONV TRAINING WITH DATA_NAME:%s NUM_EPOCHS:%d LATENT_DIM:%d ###########' % (sys.argv[3], int(sys.argv[5]), int(sys.argv[7])))
-    trainer, model = train(model_path=sys.argv[1], data_location=sys.argv[2], data_name=sys.argv[3],
+    trainer, model = train_sig(model_path=sys.argv[1], data_location=sys.argv[2], data_name=sys.argv[3],
                            batch_size=int(sys.argv[4]), num_epochs=int(sys.argv[5]),
                            save_interval=int(sys.argv[6]), latent_dim=int(sys.argv[7]), arch=sys.argv[8], with_op=(sys.argv[9] == "True"))
 elif do_eval:
