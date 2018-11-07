@@ -259,8 +259,11 @@ class NetGen:
         image_input = K.layers.Input(shape=(
                 None, 578, 776, 3))
 
+        image_conv_1 = K.layers.TimeDistributed(K.layers.Conv2D(filters=3, kernel_size=(10, 10), strides=4))
+        image_conv_out_1 = image_conv_1(image_input)
+
         image_feat = K.layers.TimeDistributed(model_vgg, trainable=trainable)
-        image_feat_input = image_feat(image_input)
+        image_feat_input = image_feat(image_conv_out_1)
 
         image_flat = K.layers.TimeDistributed(K.layers.Flatten())
         flat_out = image_flat(image_feat_input)
