@@ -263,7 +263,7 @@ class NetGen:
         image_conv_out_1 = image_conv_1(image_input)
 
         image_feat = K.layers.TimeDistributed(model_vgg, trainable=trainable)
-        image_feat_input = image_feat(image_conv_out_1)
+        image_feat_input = image_feat(image_conv_out_1 )
 
         image_flat = K.layers.TimeDistributed(K.layers.Flatten())
         flat_out = image_flat(image_feat_input)

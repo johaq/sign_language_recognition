@@ -171,11 +171,8 @@ def decode(datum):
 
 
 def get_class_distribution():
-    net_trainer = train_net.NetTrain(sys.argv[1], sys.argv[2], sys.argv[3], 1024, sys.argv[8])
+    net_trainer = train_net_signum.NetTrain(sys.argv[1], sys.argv[2], sys.argv[3], 1, sys.argv[8])
     dist = net_trainer.data_generator.get_class_distribution()
-    np.save(
-        sys.argv[2] + '/' + '' + 'rwth_class_dist' + '_' + '.npy',
-        dist)
     print(dist)
     return dist, net_trainer
 
@@ -227,14 +224,14 @@ def get_dumb_model_acc():
 # test_data_generation()
 #print('########### Creating SIGNUM Data ###########')
 #create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
-# get_dumb_model_acc()
+get_dumb_model_acc()
 
 # Test pretrained model
 #model = vgg_19_model.VGG_19('/home/johannes/Downloads/vgg19_weights.h5')
 #model = K.applications.VGG19(weights='imagenet')
 #K.utils.plot_model(model, to_file="model_vgg_19_full.png", show_shapes=True)
 
-do_train = True
+do_train = False
 do_eval = False
 if do_train:
     print('########### START CONV TRAINING WITH DATA_NAME:%s NUM_EPOCHS:%d LATENT_DIM:%d ###########' % (sys.argv[3], int(sys.argv[5]), int(sys.argv[7])))

@@ -346,18 +346,27 @@ class DataGenSIGNUM:
         return dict
 
     def get_class_distribution(self):
-        print("Getting class distribution")
-        tree = ET.parse(self.corpus_path)
-        root = tree.getroot()
+        parts = os.listdir(self.data_path)
         dict = {'': 0}
-        for recording in root.findall('recording'):
-            seg = recording.find('segment')
-            orth = seg.find('orth').text
-            for w in orth.split():
-                if w in dict:
-                    dict[w] += 1
-                else:
-                    dict[w] = 1
+        class_n = 1
+        for p in parts:
+            recordings = os.listdir(self.data_path + "/" + p)
+            for annot in recordings:
+                if not annot.startswith(".") and annot.endswith("txt"):
+                    with open(self.data_path + "/" + p + "/" + annot, 'r') as annoFile:
+                        data = annoFile.read()
+                        dataSplit = re.split('\n|\t', data)
+                        try:
+                            anno_txt = dataSplit[dataSplit.index('annot_deu')+1]
+                            if len(anno_txt.split('|')) > 1:
+                                anno_txt = anno_txt.split('|')[0]
+                            for w in anno_txt:
+                                if w in dict:
+                                    dict[w] += 1
+                                else:
+                                    dict[w] = 1
+                        except ValueError or IndexError:
+                            print("No german annotation in txt file. skipping")
         return dict
 
     def split_testset(self, test_set_size_pct):

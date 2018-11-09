@@ -107,7 +107,7 @@ class DataGen:
                 orth = seg.find('orth').text
                 orth = orth.strip()
                 # integer encoding
-                int_encoded_input = [ord(char) for char in " " + orth[:-1] ]
+                int_encoded_input = [ord(char) for char in " " + orth[:-1]]
                 int_encoded_output = [ord(char) for char in orth]
                 # one-hot encoding
                 one_hot_encoded_input = K.utils.to_categorical(int_encoded_input, num_classes=118)
