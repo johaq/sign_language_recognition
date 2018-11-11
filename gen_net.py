@@ -4,6 +4,8 @@ import keras as K
 import seq2seq
 from seq2seq.models import Seq2Seq
 import numpy as np
+from IPython.display import SVG
+from keras.utils.vis_utils import model_to_dot
 
 
 class NetGen:

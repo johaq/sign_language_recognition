@@ -1,5 +1,6 @@
 import gen_data
 import gen_data_signum
+import gen_net
 import train_net
 import train_net_signum
 import eval_net
@@ -161,6 +162,40 @@ def evaluate_image_model(model, arch, op, latent_dim, num):
             continue
     return acc / num
 
+def evaluate_image_model_sig(model, arch, op, latent_dim, num):
+    data_generator = gen_data_signum.DataGen(
+        data_path="",
+        corpus_path="")
+    data_generator.load_from_file(sys.argv[2], sys.argv[3])
+    net_eval = eval_net.NetEval(model, data_generator.dict, load_model=True, latent_dim=latent_dim, mix=("merge" in arch))
+
+    acc = 0
+    for i in range(num):
+        try:
+            if arch == "std":
+                encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_sample()
+                encoder_input_data = np.expand_dims(encoder_input_data, 0)
+            elif arch == "std_conv" or arch == "deep_conv" or arch == "vgg_19_retrain_False" or arch == "vgg_19_retrain_True":
+                if not op:
+                    encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_sample()
+                else:
+                    encoder_input_data, decoder_input_data, decoder_target_data = data_generator.get_random_image_op_sample()
+                encoder_input_data = np.expand_dims(encoder_input_data, 0)
+            elif arch == "std_conv_merge" or arch == "deep_conv_merge":
+                if not op:
+                    encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_sample()
+                else:
+                    encoder_input_data, decoder_input_data, decoder_target_data, encoder_input_op = data_generator.get_random_mix_op_sample()
+                if not is_same_input_size(encoder_input_data, encoder_input_op):
+                    continue
+                encoder_input_data = [np.expand_dims(encoder_input_data, 0), np.expand_dims(encoder_input_op, 0)]
+
+            acc += net_eval.test_edit_distance(encoder_input_data, np.expand_dims(decoder_target_data, 0))
+        except ValueError or OSError:
+            continue
+    return acc / num
+
+
 
 def is_same_input_size(in_im, in_op):
     return in_im.shape[0] == in_op.shape[0]
@@ -196,7 +231,7 @@ def get_dumb_model_acc():
     acc_total = 0
     num = 100000
     for i in range(num):
-        encoder_input_data, decoder_input_data, decoder_target_data = trainer.data_generator.get_random_sample()
+        _, _, decoder_target_data = trainer.data_generator.get_random_sample()
         target_string = ""
         prediction_string = ""
         #print(decoder_target_data.shape)
@@ -225,6 +260,10 @@ def get_dumb_model_acc():
 #print('########### Creating SIGNUM Data ###########')
 #create_and_save_data_sig('/media/compute/homes/jkummert/data', 'signum_word')
 #get_dumb_model_acc()
+
+#net_generator = gen_net.NetGen()
+#net_generator.get_std_net(256)
+
 
 # Test pretrained model
 #model = vgg_19_model.VGG_19('/home/johannes/Downloads/vgg19_weights.h5')
@@ -285,7 +324,8 @@ elif do_eval:
             else:
                 with_op = False
             print('########### EVALUATING MODEL %s WITH ARCH: %s, DIM: %d, OP: %s ###########' % (m,arch,latent_dim,with_op))
-            acc = evaluate_image_model(loaded_model, arch=arch, op=with_op, latent_dim=latent_dim, num=250)
+            #acc = evaluate_image_model(loaded_model, arch=arch, op=with_op, latent_dim=latent_dim, num=250)
+            acc = evaluate_image_model_sig(loaded_model, arch=arch, op=with_op, latent_dim=latent_dim, num=250)
             print('\n########### MODEL ACCURACY: %f ###########' % acc)
 
 

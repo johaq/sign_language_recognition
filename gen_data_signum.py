@@ -208,8 +208,9 @@ class DataGenSIGNUM:
         index = random.randint(0, len(recordings) - 1)
 
         decoder_input, decoder_output = self.read_label(self.data_path + "/" + parts[index_parts] + "/" + recordings[index] + ".txt")
-        encoder_input = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
-        return encoder_input, decoder_input, decoder_output
+        #encoder_input = self.read_recording(self.data_path + "/" + parts[index_parts] + "/" + recordings[index])
+        return 1, decoder_input, decoder_output
+
 
     def get_random_image_sample(self):
         parts = os.listdir(self.data_path)
@@ -360,7 +361,7 @@ class DataGenSIGNUM:
                             anno_txt = dataSplit[dataSplit.index('annot_deu')+1]
                             if len(anno_txt.split('|')) > 1:
                                 anno_txt = anno_txt.split('|')[0]
-                            for w in anno_txt:
+                            for w in anno_txt.split():
                                 if w in dict:
                                     dict[w] += 1
                                 else:
